@@ -65,8 +65,11 @@ function leaf(ctx, x, y, len, ang, color = '#B9D3A8') {
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(len * 0.5, -len * 0.3, len, 0); ctx.quadraticCurveTo(len * 0.5, len * 0.3, 0, 0); ctx.fill(); ctx.restore();
 }
 function moon(ctx, x, y, r, color = '#FFE9A8') {
-  ctx.save(); ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
-  ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(x + r * 0.45, y - r * 0.2, r * 0.85, 0, 7); ctx.fill(); ctx.restore();
+  // серп без «вирізання» полотна: дуга зовні + дуга всередині у зворотний бік
+  ctx.save(); ctx.fillStyle = color; ctx.shadowColor = 'rgba(255,233,168,.55)'; ctx.shadowBlur = r * 0.5;
+  ctx.beginPath(); ctx.arc(x, y, r, Math.PI * 0.32, Math.PI * 1.68, false);
+  ctx.arc(x + r * 0.42, y - r * 0.05, r * 0.82, Math.PI * 1.52, Math.PI * 0.48, true);
+  ctx.closePath(); ctx.fill(); ctx.restore();
 }
 function ornamentRow(ctx, y, w, s, c1, c2) {
   // український геометричний орнамент (стилізований ромб-хрестик)
@@ -219,14 +222,14 @@ export const PROP_IDS = Object.keys(PROPS);
 export const DECOR = {
   heart: (ctx, s, c = P.roseDeep) => { ctx.fillStyle = c; heartPath(ctx, 0, s * 0.1, s); ctx.fill(); },
   star: (ctx, s, c = P.honey) => star(ctx, 0, 0, s * 0.5, c),
-  cloud: (ctx, s) => cloud(ctx, -s * 0.75, s * 0.15, s * 0.55, '#fff'),
+  cloud: (ctx, s) => { ctx.save(); ctx.shadowColor = 'rgba(150,120,140,.35)'; ctx.shadowBlur = s * 0.08; ctx.shadowOffsetY = s * 0.03; cloud(ctx, -s * 0.52, s * 0.14, s * 0.36, '#FFFFFF'); ctx.restore(); ctx.save(); ctx.globalAlpha = .55; ctx.strokeStyle = '#D9CFE6'; ctx.lineWidth = s * 0.02; ctx.beginPath(); ctx.arc(-s * 0.1, s * 0.05, s * 0.16, Math.PI * 0.15, Math.PI * 0.85); ctx.stroke(); ctx.restore(); },
   moon: (ctx, s) => moon(ctx, 0, 0, s * 0.45),
   flower: (ctx, s) => flower(ctx, 0, 0, s * 0.5, '#F6B7B9'),
   sunflower: (ctx, s) => sunflower(ctx, 0, 0, s * 0.45),
   balloon: (ctx, s, c = P.rose) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(0, -s * 0.15, s * 0.32, s * 0.4, 0, 0, 7); ctx.fill(); ctx.strokeStyle = P.cocoa; ctx.lineWidth = s * 0.015; ctx.beginPath(); ctx.moveTo(0, s * 0.25); ctx.quadraticCurveTo(s * 0.08, s * 0.4, 0, s * 0.55); ctx.stroke(); },
   crown: (ctx, s) => { ctx.fillStyle = P.honey; ctx.beginPath(); ctx.moveTo(-s * 0.45, s * 0.25); ctx.lineTo(-s * 0.45, -s * 0.2); ctx.lineTo(-s * 0.22, s * 0.02); ctx.lineTo(0, -s * 0.3); ctx.lineTo(s * 0.22, s * 0.02); ctx.lineTo(s * 0.45, -s * 0.2); ctx.lineTo(s * 0.45, s * 0.25); ctx.closePath(); ctx.fill(); },
   bow: (ctx, s) => { ctx.fillStyle = P.roseDeep; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(-s * 0.5, -s * 0.4, -s * 0.5, 0); ctx.quadraticCurveTo(-s * 0.5, s * 0.4, 0, 0); ctx.quadraticCurveTo(s * 0.5, -s * 0.4, s * 0.5, 0); ctx.quadraticCurveTo(s * 0.5, s * 0.4, 0, 0); ctx.fill(); ctx.beginPath(); ctx.arc(0, 0, s * 0.09, 0, 7); ctx.fill(); },
-  sparkle: (ctx, s) => { ctx.fillStyle = '#fff'; ctx.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? s * 0.08 : s * 0.5, a = i * Math.PI / 4; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.fill(); }
+  sparkle: (ctx, s) => { ctx.shadowColor = 'rgba(243,203,107,.8)'; ctx.shadowBlur = s * 0.1; ctx.fillStyle = '#F8D98A'; ctx.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? s * 0.08 : s * 0.5, a = i * Math.PI / 4; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.fill(); }
 };
 export const DECOR_IDS = Object.keys(DECOR);
 export const EMOJI = ['💗', '🍼', '🧸', '🎀', '🌸', '⭐', '🌙', '☁️', '🐣', '🦋', '🍓', '🎈', '👶', '🌻', '💛', '🐻'];

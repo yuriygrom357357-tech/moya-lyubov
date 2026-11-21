@@ -174,7 +174,8 @@ function drawMilestone(ctx, l) {
     return;
   }
   if (l.style === 'big') {
-    ctx.font = `700 400px ${FONT.display}`;
+    let fs = 400; ctx.font = `700 ${fs}px ${FONT.display}`;
+    const nw = ctx.measureText(String(l.num)).width; if (nw > 470) { fs = Math.floor(fs * 470 / nw); ctx.font = `700 ${fs}px ${FONT.display}`; }
     ctx.lineJoin = 'round'; ctx.lineWidth = 34; ctx.strokeStyle = '#fff';
     ctx.shadowColor = 'rgba(100,60,50,.2)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 12;
     ctx.strokeText(String(l.num), 0, -70); ctx.shadowColor = 'transparent';
@@ -195,7 +196,8 @@ function drawMilestone(ctx, l) {
     ctx.fill(); ctx.shadowColor = 'transparent';
     ctx.fillStyle = '#FFF0C2'; ctx.beginPath(); ctx.arc(0, 0, R * 0.82, 0, 7); ctx.fill();
     ctx.strokeStyle = l.color; ctx.setLineDash([10, 10]); ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, R * 0.72, 0, 7); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = l.color; ctx.font = `700 170px ${FONT.display}`; ctx.fillText(String(l.num), 0, -20);
+    let bf = 170; ctx.font = `700 ${bf}px ${FONT.display}`; const bw = ctx.measureText(String(l.num)).width; if (bw > R * 1.15) { bf = Math.floor(bf * R * 1.15 / bw); ctx.font = `700 ${bf}px ${FONT.display}`; }
+    ctx.fillStyle = l.color; ctx.fillText(String(l.num), 0, -20);
     const word = unitText(l.lang, l.num, l.unit).replace(String(l.num), '').trim();
     ctx.fillStyle = '#8C5A5A'; ctx.font = `700 50px ${FONT.display}`; ctx.fillText(word, 0, 92);
     return;

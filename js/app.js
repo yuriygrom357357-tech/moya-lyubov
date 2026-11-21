@@ -2,7 +2,7 @@ import { db, uid, exportBackup, importBackup } from './db.js';
 import { t, ut, setLang, getLang, detectLang, LANGS, fmtDate } from './i18n.js';
 import { SCENES, SCENE_IDS, PROPS, PROP_IDS, DECOR, DECOR_IDS, EMOJI, PALETTE } from './scenes.js';
 import { fitWidth, Editor, newDoc, FORMATS, makePhotoLayer, makeMilestoneLayer, makeTextLayer, makeDecorLayer, makeEmojiLayer, ensureImages, exportBlob, exportSticker, imgCache, blobToImage, render, layerSize } from './editor.js';
-import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt } from './services.js';
+import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt, puterPhotoshoot, loadPuter } from './services.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -524,16 +524,21 @@ async function viewAI(v) {
   <section class="sec"><h2>1 · ${t('step1')}</h2><button class="drop" data-p="photo"><span class="drop-in">📷 ${t('choose')}</span></button></section>
   <section class="sec"><h2>2 · ${t('step2')}</h2><div class="themes">${AI_THEME_IDS.map(id => `<button class="theme ${id === st.theme ? 'on' : ''}" data-theme="${id}">${t('th_' + id)}</button>`).join('')}</div>
     <div class="second" hidden><p class="hint">${t('secondPhoto')}</p><button class="drop sm" data-p="second"><span class="drop-in">👩 ${t('choose')}</span></button></div></section>
+  <p class="hint center gen-hint">↑ ${t('step1')}</p>
+  <div class="card puter-card"><h3>✨ ${t('puterTitle')}</h3><p class="hint">${t('puterText')}</p>
+    <button class="btn primary wide big" data-puter disabled>✨ ${t('generate')}</button></div>
   <div class="card free-card"><h3>🆓 ${t('freeTitle')}</h3><p class="hint">${t('freeText')}</p>
     <button class="btn primary wide" data-free>📋 ${t('copyOpen')}</button>
     <button class="btn soft wide" data-import>📥 ${t('addResult')}</button></div>
   <div class="card"><h3>⚡ ${t('autoTitle')}</h3><p class="hint">${t('autoText')}</p>
-    <button class="btn primary wide" data-gen disabled>✨ ${t('generate')}</button><p class="hint center gen-hint">↑ ${t('step1')}</p>
+    <button class="btn soft wide" data-gen disabled>⚡ ${t('generate')}</button>
     ${key ? '' : `<button class="btn ghost wide" data-settings>🔑 ${t('openSettings')}</button>`}</div>
   <div class="ai-out"></div>`;
   $('[data-settings]', v)?.addEventListener('click', () => aiSettings());
   const genBtn = $('[data-gen]', v);
-  const check = () => { genBtn.disabled = !st.photo || (st.theme === 'family' && !st.second); genBtn.title = genBtn.disabled ? t('step1') : ''; $('.gen-hint', v).hidden = !genBtn.disabled; };
+  const puterBtn = $('[data-puter]', v);
+  loadPuter().catch(() => {});
+  const check = () => { const off = !st.photo || (st.theme === 'family' && !st.second); genBtn.disabled = off; puterBtn.disabled = off; $('.gen-hint', v).hidden = !off; };
   $$('[data-p]', v).forEach(b => b.onclick = async () => { const [f] = await pickFiles(); if (!f) return; st[b.dataset.p] = f; b.innerHTML = `<img src="${URL.createObjectURL(f)}" alt="">`; b.classList.add('has'); check(); });
   $$('[data-theme]', v).forEach(b => b.onclick = () => { st.theme = b.dataset.theme; $$('[data-theme]', v).forEach(x => x.classList.toggle('on', x === b)); $('.second', v).hidden = st.theme !== 'family'; check(); });
   $('[data-free]', v).onclick = async () => {
@@ -548,33 +553,41 @@ async function viewAI(v) {
     });
   };
   $('[data-import]', v).onclick = async () => { const [f] = await pickFiles(); if (f) go('studio', { photoBlob: f, milestone: currentMilestone(kid()), label: t('th_' + st.theme) }); };
+  puterBtn.onclick = async () => {
+    try { if (window.puter && !window.puter.auth.isSignedIn()) await window.puter.auth.signIn(); } catch (e) { return toast(t('puterSign'), 4000); }
+    runGen(() => puterPhotoshoot({ photo: st.photo, second: st.second, theme: st.theme }));
+  };
   genBtn.onclick = async () => {
     const k2 = await db.setting('aiKey'); if (!k2) return aiSettings();
-    const out = $('.ai-out', v); genBtn.disabled = true;
+    runGen(async () => aiPhotoshoot({ key: k2, model: (await db.setting('aiModel')) || 'gemini-2.5-flash-image', photo: st.photo, second: st.second, theme: st.theme }));
+  };
+  async function runGen(fn) {
+    const out = $('.ai-out', v); genBtn.disabled = true; puterBtn.disabled = true;
     out.innerHTML = `<div class="card center"><div class="spinner"></div><p>${t('generating')}</p></div>`;
     out.scrollIntoView({ behavior: 'smooth' });
     try {
-      const blob = await aiPhotoshoot({ key: k2, model: (await db.setting('aiModel')) || 'gemini-2.5-flash-image', photo: st.photo, second: st.second, theme: st.theme });
+      const blob = await fn();
       const url = URL.createObjectURL(blob), orig = URL.createObjectURL(st.photo);
       out.innerHTML = `<div class="ba res" style="--p:100%"><img class="ba-after" src="${url}" alt=""><img class="ba-before" src="${orig}" alt=""><input class="ba-range" type="range" min="0" max="100" value="100" aria-label="${t('before')} / ${t('after')}"><span class="ba-l">${t('before')}</span><span class="ba-r">${t('after')}</span></div>
         <div class="v-actions"><button class="btn primary" data-o="studio">🎉 ${t('toStudio')}</button><button class="btn soft" data-o="album">🖼️ ${t('toAlbum')}</button><button class="btn soft" data-o="again">🔄 ${t('again')}</button><button class="btn ghost" data-o="dl">⬇️ ${t('download')}</button></div>`;
       const r = $('.ba-range', out); r.oninput = () => $('.ba', out).style.setProperty('--p', r.value + '%');
       out.onclick = async e => {
         const o = e.target.closest('[data-o]')?.dataset.o; if (!o) return;
-        if (o === 'again') return genBtn.click();
+        if (o === 'again') return runGen(fn);
         if (o === 'dl') return download(blob, fileName(t('th_' + st.theme)));
         if (o === 'studio') return go('studio', { photoBlob: blob, milestone: currentMilestone(kid()), label: t('th_' + st.theme) });
         if (o === 'album') {
+          const btn = e.target.closest('[data-o]'); if (btn.disabled) return; btn.disabled = true; const lbl = btn.innerHTML; btn.innerHTML = '<span class="spinner sm"></span>';
           const doc = newDoc('9:16'); const l = await addPhotoToDoc(doc, blob, { frame: 'none', shadow: false });
           l.s = Math.max(doc.w / l.w0, doc.h / l.h0); l.x = doc.w / 2; l.y = doc.h / 2; doc.layers.push(l); doc.prop = 'none';
           const full = await exportBlob(doc); const th = (await downscale(full, 420)).blob;
           await db.put('items', { id: uid(), kidId: S.kidId, created: Date.now(), date: iso(new Date()), label: t('th_' + st.theme), doc, originalKey: await db.putBlob((await downscale(st.photo, 1600)).blob), fullKey: await db.putBlob(full), thumbKey: await db.putBlob(th) });
-          await load(); toast('💗 ' + t('saved'));
+          await load(); toast('💗 ' + t('saved')); btn.innerHTML = '✓ ' + t('saved');
         }
       };
-    } catch (e) { console.warn(e); out.innerHTML = `<div class="card warn"><p>${e.billing ? t('aiBilling') : esc(t('err', { e: e.message }))}</p></div>`; }
+    } catch (e) { console.warn(e); out.innerHTML = `<div class="card warn"><p>${e.billing ? t('aiBilling') : esc(t('err', { e: e.message }))}</p>${e.puter ? `<p class="hint">${t('puterFail')}</p>` : ''}</div>`; }
     check();
-  };
+  }
 }
 async function aiSettings() {
   const key = (await db.setting('aiKey')) || '', model = (await db.setting('aiModel')) || 'gemini-2.5-flash-image';

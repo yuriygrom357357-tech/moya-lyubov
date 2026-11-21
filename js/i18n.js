@@ -32,8 +32,12 @@ export function unitText(lang, n, unit) {
 
 const S = {
 uk: {
+  puterTitle: 'Автоматично і безкоштовно',
+  puterText: 'Без ключів. Перший раз попросить увійти або створити безкоштовний акаунт Puter: це кілька секунд. Фото обробляє модель Google Gemini.',
+  puterSign: 'Вхід у Puter скасовано. Спробуйте ще раз або скористайтеся режимом «через Gemini» нижче.',
+  puterFail: 'Якщо закінчився безкоштовний ліміт Puter, скористайтеся режимом «через Gemini» нижче: він безкоштовний.',
   copy: 'Копіювати', openGemini: 'Відкрити Gemini',
-  freeTitle: 'Безкоштовно через Gemini',
+  freeTitle: 'Вручну через Gemini (безкоштовно)',
   freeText: 'Оберіть тему → натисніть кнопку: запит скопіюється, відкриється Gemini. Там прикріпіть фото малюка, вставте запит і збережіть результат. Потім додайте його сюди.',
   copyOpen: 'Скопіювати запит і відкрити Gemini',
   addResult: 'Додати готове фото в студію',
@@ -82,6 +86,10 @@ uk: {
   confirm: 'Підтвердіть', yes: 'Так', no: 'Ні', milestone: 'Віха', choosePhotoHint: 'Можна кілька — оберете потім'
 },
 en: {
+  puterTitle: 'Automatic and free',
+  puterText: 'No keys. The first time it asks you to sign in or create a free Puter account — a few seconds. The photo is processed by Google Gemini.',
+  puterSign: 'Puter sign-in was cancelled. Try again or use “via Gemini” below.',
+  puterFail: 'If the free Puter allowance has run out, use “via Gemini” below — it’s free.',
   copy: 'Copy', openGemini: 'Open Gemini',
   freeTitle: 'Free via Gemini',
   freeText: 'Pick a theme → tap the button: the prompt is copied and Gemini opens. Attach the baby photo there, paste the prompt and save the result. Then add it here.',
@@ -132,6 +140,10 @@ en: {
   confirm: 'Please confirm', yes: 'Yes', no: 'No', milestone: 'Milestone', choosePhotoHint: 'You can pick several'
 },
 de: {
+  puterTitle: 'Automatisch und kostenlos',
+  puterText: 'Ohne Schlüssel. Beim ersten Mal meldest du dich bei Puter an oder erstellst ein kostenloses Konto – ein paar Sekunden. Das Foto verarbeitet Google Gemini.',
+  puterSign: 'Puter-Anmeldung abgebrochen. Versuche es erneut oder nutze „über Gemini“ unten.',
+  puterFail: 'Wenn das kostenlose Puter-Kontingent aufgebraucht ist, nutze „über Gemini“ unten – kostenlos.',
   copy: 'Kopieren', openGemini: 'Gemini öffnen',
   freeTitle: 'Kostenlos über Gemini',
   freeText: 'Thema wählen → Button tippen: Der Prompt wird kopiert und Gemini öffnet sich. Dort Babyfoto anhängen, Prompt einfügen und Ergebnis speichern. Dann hier hinzufügen.',
@@ -182,6 +194,10 @@ de: {
   confirm: 'Bitte bestätigen', yes: 'Ja', no: 'Nein', milestone: 'Meilenstein', choosePhotoHint: 'Mehrere möglich'
 },
 fr: {
+  puterTitle: 'Automatique et gratuit',
+  puterText: 'Sans clé. La première fois, connectez-vous ou créez un compte Puter gratuit — quelques secondes. La photo est traitée par Google Gemini.',
+  puterSign: 'Connexion Puter annulée. Réessayez ou utilisez « via Gemini » ci-dessous.',
+  puterFail: 'Si le quota gratuit Puter est épuisé, utilisez « via Gemini » ci-dessous — c’est gratuit.',
   copy: 'Copier', openGemini: 'Ouvrir Gemini',
   freeTitle: 'Gratuit via Gemini',
   freeText: 'Choisissez un thème → touchez le bouton : le texte est copié et Gemini s’ouvre. Joignez-y la photo, collez le texte et enregistrez le résultat. Puis ajoutez-le ici.',
@@ -232,6 +248,10 @@ fr: {
   confirm: 'Confirmez', yes: 'Oui', no: 'Non', milestone: 'Étape', choosePhotoHint: 'Plusieurs possibles'
 },
 es: {
+  puterTitle: 'Automático y gratis',
+  puterText: 'Sin claves. La primera vez te pedirá iniciar sesión o crear una cuenta gratuita de Puter: unos segundos. La foto la procesa Google Gemini.',
+  puterSign: 'Se canceló el inicio de sesión en Puter. Inténtalo de nuevo o usa «con Gemini» abajo.',
+  puterFail: 'Si se agotó el cupo gratuito de Puter, usa «con Gemini» abajo: es gratis.',
   copy: 'Copiar', openGemini: 'Abrir Gemini',
   freeTitle: 'Gratis con Gemini',
   freeText: 'Elige un tema → toca el botón: se copia el texto y se abre Gemini. Adjunta allí la foto, pega el texto y guarda el resultado. Luego añádelo aquí.',
@@ -282,6 +302,10 @@ es: {
   confirm: 'Confirma', yes: 'Sí', no: 'No', milestone: 'Etapa', choosePhotoHint: 'Puedes elegir varias'
 },
 it: {
+  puterTitle: 'Automatico e gratuito',
+  puterText: 'Senza chiavi. La prima volta chiede di accedere o creare un account Puter gratuito: pochi secondi. La foto è elaborata da Google Gemini.',
+  puterSign: 'Accesso a Puter annullato. Riprova o usa «con Gemini» qui sotto.',
+  puterFail: 'Se il credito gratuito di Puter è finito, usa «con Gemini» qui sotto: è gratis.',
   copy: 'Copia', openGemini: 'Apri Gemini',
   freeTitle: 'Gratis con Gemini',
   freeText: 'Scegli un tema → tocca il pulsante: il testo viene copiato e si apre Gemini. Allega la foto, incolla il testo e salva il risultato. Poi aggiungilo qui.',
@@ -332,6 +356,10 @@ it: {
   confirm: 'Conferma', yes: 'Sì', no: 'No', milestone: 'Traguardo', choosePhotoHint: 'Puoi sceglierne più di una'
 },
 pt: {
+  puterTitle: 'Automático e grátis',
+  puterText: 'Sem chaves. Na primeira vez pede para entrar ou criar uma conta Puter gratuita — alguns segundos. A foto é processada pelo Google Gemini.',
+  puterSign: 'Login no Puter cancelado. Tente de novo ou use “pelo Gemini” abaixo.',
+  puterFail: 'Se a cota gratuita do Puter acabou, use “pelo Gemini” abaixo — é grátis.',
   copy: 'Copiar', openGemini: 'Abrir o Gemini',
   freeTitle: 'Grátis pelo Gemini',
   freeText: 'Escolha um tema → toque no botão: o texto é copiado e o Gemini abre. Anexe a foto, cole o texto e salve o resultado. Depois adicione aqui.',
@@ -382,6 +410,10 @@ pt: {
   confirm: 'Confirme', yes: 'Sim', no: 'Não', milestone: 'Marco', choosePhotoHint: 'Pode escolher várias'
 },
 pl: {
+  puterTitle: 'Automatycznie i za darmo',
+  puterText: 'Bez kluczy. Za pierwszym razem zaloguj się lub załóż darmowe konto Puter — kilka sekund. Zdjęcie przetwarza Google Gemini.',
+  puterSign: 'Logowanie do Puter anulowane. Spróbuj ponownie lub użyj „przez Gemini” poniżej.',
+  puterFail: 'Jeśli skończył się darmowy limit Puter, użyj „przez Gemini” poniżej — to nic nie kosztuje.',
   copy: 'Kopiuj', openGemini: 'Otwórz Gemini',
   freeTitle: 'Za darmo przez Gemini',
   freeText: 'Wybierz motyw → stuknij przycisk: tekst się skopiuje i otworzy się Gemini. Dołącz tam zdjęcie, wklej tekst i zapisz wynik. Potem dodaj go tutaj.',
@@ -432,6 +464,10 @@ pl: {
   confirm: 'Potwierdź', yes: 'Tak', no: 'Nie', milestone: 'Etap', choosePhotoHint: 'Można wybrać kilka'
 },
 he: {
+  puterTitle: 'אוטומטי ובחינם',
+  puterText: 'בלי מפתחות. בפעם הראשונה תתבקשו להתחבר או ליצור חשבון Puter חינמי — כמה שניות. התמונה מעובדת ב‑Google Gemini.',
+  puterSign: 'ההתחברות ל‑Puter בוטלה. נסו שוב או השתמשו ב״דרך Gemini״ למטה.',
+  puterFail: 'אם המכסה החינמית של Puter נגמרה, השתמשו ב״דרך Gemini״ למטה — זה בחינם.',
   copy: 'העתקה', openGemini: 'פתיחת Gemini',
   freeTitle: 'בחינם דרך Gemini',
   freeText: 'בחרו נושא ← הקישו על הכפתור: הבקשה תועתק ו‑Gemini ייפתח. צרפו שם את תמונת התינוק, הדביקו את הבקשה ושמרו את התוצאה. אחר כך הוסיפו אותה כאן.',
@@ -482,6 +518,10 @@ he: {
   confirm: 'אישור', yes: 'כן', no: 'לא', milestone: 'אבן דרך', choosePhotoHint: 'אפשר לבחור כמה'
 },
 ja: {
+  puterTitle: '自動・無料',
+  puterText: 'キー不要。初回のみPuterの無料アカウントにログインまたは作成します（数秒）。写真はGoogle Geminiで処理されます。',
+  puterSign: 'Puterへのログインがキャンセルされました。もう一度試すか、下の「Gemini経由」をご利用ください。',
+  puterFail: 'Puterの無料枠を使い切った場合は、下の「Gemini経由」（無料）をご利用ください。',
   copy: 'コピー', openGemini: 'Geminiを開く',
   freeTitle: 'Geminiで無料',
   freeText: 'テーマを選んでボタンを押すと、指示文がコピーされGeminiが開きます。赤ちゃんの写真を添付して指示文を貼り付け、結果を保存。その後ここに追加します。',
@@ -532,6 +572,10 @@ ja: {
   confirm: '確認', yes: 'はい', no: 'いいえ', milestone: '節目', choosePhotoHint: '複数選べます'
 },
 zh: {
+  puterTitle: '自动且免费',
+  puterText: '无需密钥。首次使用需登录或注册免费的 Puter 账户（几秒钟）。照片由 Google Gemini 处理。',
+  puterSign: '已取消 Puter 登录。请重试，或使用下方的「通过 Gemini」。',
+  puterFail: '如果 Puter 免费额度用完，请使用下方的「通过 Gemini」，完全免费。',
   copy: '复制', openGemini: '打开 Gemini',
   freeTitle: '通过 Gemini 免费生成',
   freeText: '选择主题 → 点按钮：提示词会被复制并打开 Gemini。在那里附上宝宝照片、粘贴提示词并保存结果，然后添加到这里。',
