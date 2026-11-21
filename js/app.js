@@ -334,7 +334,11 @@ async function viewStudio(v, arg = {}) {
     if (arg.milestone) doc.layers.push(makeMilestoneLayer(doc, arg.milestone.num, arg.milestone.unit, getLang(), 'garland'));
     if (arg.text) { const tl = makeTextLayer(doc, arg.text, 'script'); tl.y = doc.h * 0.14; tl.size = 120; tl.color = PALETTE.roseDeep; doc.layers.push(tl); }
     const nl = makeTextLayer(doc, k.name, 'script'); nl.y = doc.h * 0.9; doc.layers.push(nl);
-    if (arg.photoBlob) await addPhotoToDoc(doc, arg.photoBlob, { frame: 'none', cut: false, s: 1 });
+    if (arg.photoBlob) {
+      const l = await addPhotoToDoc(doc, arg.photoBlob, { frame: 'none', shadow: false, s: 1 });
+      l.s = Math.max(doc.w / l.w0, doc.h / l.h0); l.x = doc.w / 2; l.y = doc.h / 2; doc.prop = 'none';
+      doc.layers.unshift(l);
+    }
   }
   await ensureImages(doc); await document.fonts.ready;
 
@@ -344,7 +348,7 @@ async function viewStudio(v, arg = {}) {
       <div class="st-hist"><button class="icon-btn" data-undo aria-label="${t('undo')}" title="${t('undo')}">↶</button><button class="icon-btn" data-redo aria-label="${t('redo')}" title="${t('redo')}">↷</button></div>
       <button class="btn primary sm" data-save>💾 ${t('save')}</button>
     </header>
-    <div class="st-stage"><canvas id="cv"></canvas><div class="st-empty" hidden><button class="btn primary" data-addphoto>📷 ${t('addPhoto')}</button><p>${t('tapHint')}</p></div><div class="st-busy" hidden><div class="spinner"></div><p></p></div></div>
+    <div class="st-stage"><canvas id="cv"></canvas><div class="st-empty" hidden><button class="btn primary" data-addphoto>📷 ${t('addPhoto')}</button></div><div class="st-busy" hidden><div class="spinner"></div><p></p></div></div>
     <div class="st-panel" id="panel"></div>
     <nav class="st-tabs">${[['bg', '🌸', 'tBg'], ['photo', '📷', 'tPhoto'], ['mile', '🎉', 'tMile'], ['text', '✍️', 'tText'], ['decor', '⭐', 'tDecor'], ['format', '📐', 'tFormat']].map(([id, ic, key]) => `<button class="st-tab" data-tab="${id}"><span>${ic}</span>${t(key)}</button>`).join('')}</nav>
   </div>`;
@@ -424,7 +428,7 @@ async function viewStudio(v, arg = {}) {
         <div class="lbl">${t('propLabel')}</div><div class="chips wrap">${PROP_IDS.map(id => `<button class="chip ${doc.prop === id ? 'on' : ''}" data-prop="${id}">${t('pr_' + id)}</button>`).join('')}</div>`;
     } else if (tab === 'photo') {
       const photos = doc.layers.filter(x => x.type === 'photo');
-      h += `<button class="btn primary wide" data-act="addphoto">📷 ${t('addPhoto')}</button>
+      h += `${photos.length ? `<button class="btn primary wide" data-act="addphoto">📷 ${t('addPhoto')}</button>` : ''}
         ${photos.length ? `<button class="btn soft wide" data-act="addparent">👨‍👩‍👧 ${t('addParent')}</button><div class="chips wrap">${photos.map((x, i) => `<button class="chip" data-sel="${x.id}">📷 ${i + 1}</button>`).join('')}</div>` : ''}
         <p class="hint">${t('tapHint')}</p>`;
     } else if (tab === 'mile') {
