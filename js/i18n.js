@@ -32,6 +32,14 @@ export function unitText(lang, n, unit) {
 
 const S = {
 uk: {
+  freeTitle: 'Безкоштовно через Gemini',
+  freeText: 'Оберіть тему → натисніть кнопку: запит скопіюється, відкриється Gemini. Там прикріпіть фото малюка, вставте запит і збережіть результат. Потім додайте його сюди.',
+  copyOpen: 'Скопіювати запит і відкрити Gemini',
+  addResult: 'Додати готове фото в студію',
+  autoTitle: 'Автоматично в застосунку',
+  autoText: 'Потрібен ключ Google Gemini API з увімкненою оплатою (кілька центів за фото).',
+  copied: 'Запит скопійовано — вставте його в Gemini разом із фото',
+  aiBilling: 'Google не дає генерувати зображення на безкоштовному ключі. Увімкніть оплату в Google AI Studio або скористайтеся режимом «Безкоштовно через Gemini» вище.',
   unsaved: 'Вийти без збереження? Зміни буде втрачено.',
   appName: 'Моя Любов', tagline: 'Фото малюка до кожної віхи',
   navHome: 'Головна', navTimeline: 'Віхи', navCreate: 'Створити', navAlbum: 'Альбом', navMore: 'Ще',
@@ -73,6 +81,14 @@ uk: {
   confirm: 'Підтвердіть', yes: 'Так', no: 'Ні', milestone: 'Віха', choosePhotoHint: 'Можна кілька — оберете потім'
 },
 en: {
+  freeTitle: 'Free via Gemini',
+  freeText: 'Pick a theme → tap the button: the prompt is copied and Gemini opens. Attach the baby photo there, paste the prompt and save the result. Then add it here.',
+  copyOpen: 'Copy prompt & open Gemini',
+  addResult: 'Add the result to the studio',
+  autoTitle: 'Automatic in the app',
+  autoText: 'Needs a Google Gemini API key with billing enabled (a few cents per photo).',
+  copied: 'Prompt copied — paste it into Gemini with the photo',
+  aiBilling: 'Google doesn’t allow image generation on a free key. Enable billing in Google AI Studio or use “Free via Gemini” above.',
   unsaved: 'Leave without saving? Your changes will be lost.',
   appName: 'My Love', tagline: 'Baby photos for every milestone',
   navHome: 'Home', navTimeline: 'Milestones', navCreate: 'Create', navAlbum: 'Album', navMore: 'More',
@@ -114,6 +130,14 @@ en: {
   confirm: 'Please confirm', yes: 'Yes', no: 'No', milestone: 'Milestone', choosePhotoHint: 'You can pick several'
 },
 de: {
+  freeTitle: 'Kostenlos über Gemini',
+  freeText: 'Thema wählen → Button tippen: Der Prompt wird kopiert und Gemini öffnet sich. Dort Babyfoto anhängen, Prompt einfügen und Ergebnis speichern. Dann hier hinzufügen.',
+  copyOpen: 'Prompt kopieren & Gemini öffnen',
+  addResult: 'Ergebnis ins Studio',
+  autoTitle: 'Automatisch in der App',
+  autoText: 'Benötigt einen Google-Gemini-API-Schlüssel mit aktivierter Abrechnung (wenige Cent pro Foto).',
+  copied: 'Prompt kopiert – mit dem Foto in Gemini einfügen',
+  aiBilling: 'Google erlaubt keine Bildgenerierung mit kostenlosem Schlüssel. Aktiviere die Abrechnung in Google AI Studio oder nutze „Kostenlos über Gemini“ oben.',
   unsaved: 'Ohne Speichern verlassen? Änderungen gehen verloren.',
   appName: 'Meine Liebe', tagline: 'Babyfotos für jeden Meilenstein',
   navHome: 'Start', navTimeline: 'Meilensteine', navCreate: 'Erstellen', navAlbum: 'Album', navMore: 'Mehr',
@@ -155,6 +179,14 @@ de: {
   confirm: 'Bitte bestätigen', yes: 'Ja', no: 'Nein', milestone: 'Meilenstein', choosePhotoHint: 'Mehrere möglich'
 },
 fr: {
+  freeTitle: 'Gratuit via Gemini',
+  freeText: 'Choisissez un thème → touchez le bouton : le texte est copié et Gemini s’ouvre. Joignez-y la photo, collez le texte et enregistrez le résultat. Puis ajoutez-le ici.',
+  copyOpen: 'Copier et ouvrir Gemini',
+  addResult: 'Ajouter le résultat au studio',
+  autoTitle: 'Automatique dans l’app',
+  autoText: 'Nécessite une clé API Google Gemini avec facturation activée (quelques centimes par photo).',
+  copied: 'Texte copié — collez-le dans Gemini avec la photo',
+  aiBilling: 'Google n’autorise pas la génération d’images avec une clé gratuite. Activez la facturation dans Google AI Studio ou utilisez « Gratuit via Gemini » ci-dessus.',
   unsaved: 'Quitter sans enregistrer ? Les modifications seront perdues.',
   appName: 'Mon Amour', tagline: 'Des photos de bébé pour chaque étape',
   navHome: 'Accueil', navTimeline: 'Étapes', navCreate: 'Créer', navAlbum: 'Album', navMore: 'Plus',
@@ -196,6 +228,14 @@ fr: {
   confirm: 'Confirmez', yes: 'Oui', no: 'Non', milestone: 'Étape', choosePhotoHint: 'Plusieurs possibles'
 },
 es: {
+  freeTitle: 'Gratis con Gemini',
+  freeText: 'Elige un tema → toca el botón: se copia el texto y se abre Gemini. Adjunta allí la foto, pega el texto y guarda el resultado. Luego añádelo aquí.',
+  copyOpen: 'Copiar y abrir Gemini',
+  addResult: 'Añadir el resultado al estudio',
+  autoTitle: 'Automático en la app',
+  autoText: 'Requiere una clave API de Google Gemini con facturación activada (unos céntimos por foto).',
+  copied: 'Texto copiado: pégalo en Gemini junto con la foto',
+  aiBilling: 'Google no permite generar imágenes con una clave gratuita. Activa la facturación en Google AI Studio o usa «Gratis con Gemini» arriba.',
   unsaved: '¿Salir sin guardar? Se perderán los cambios.',
   appName: 'Mi Amor', tagline: 'Fotos del bebé para cada etapa',
   navHome: 'Inicio', navTimeline: 'Etapas', navCreate: 'Crear', navAlbum: 'Álbum', navMore: 'Más',
@@ -237,6 +277,14 @@ es: {
   confirm: 'Confirma', yes: 'Sí', no: 'No', milestone: 'Etapa', choosePhotoHint: 'Puedes elegir varias'
 },
 it: {
+  freeTitle: 'Gratis con Gemini',
+  freeText: 'Scegli un tema → tocca il pulsante: il testo viene copiato e si apre Gemini. Allega la foto, incolla il testo e salva il risultato. Poi aggiungilo qui.',
+  copyOpen: 'Copia e apri Gemini',
+  addResult: 'Aggiungi il risultato allo studio',
+  autoTitle: 'Automatico nell’app',
+  autoText: 'Serve una chiave API Google Gemini con fatturazione attiva (pochi centesimi a foto).',
+  copied: 'Testo copiato: incollalo in Gemini con la foto',
+  aiBilling: 'Google non consente di generare immagini con una chiave gratuita. Attiva la fatturazione in Google AI Studio o usa «Gratis con Gemini» sopra.',
   unsaved: 'Uscire senza salvare? Le modifiche andranno perse.',
   appName: 'Amore Mio', tagline: 'Foto del bebè per ogni traguardo',
   navHome: 'Home', navTimeline: 'Traguardi', navCreate: 'Crea', navAlbum: 'Album', navMore: 'Altro',
@@ -278,6 +326,14 @@ it: {
   confirm: 'Conferma', yes: 'Sì', no: 'No', milestone: 'Traguardo', choosePhotoHint: 'Puoi sceglierne più di una'
 },
 pt: {
+  freeTitle: 'Grátis pelo Gemini',
+  freeText: 'Escolha um tema → toque no botão: o texto é copiado e o Gemini abre. Anexe a foto, cole o texto e salve o resultado. Depois adicione aqui.',
+  copyOpen: 'Copiar e abrir o Gemini',
+  addResult: 'Adicionar resultado ao estúdio',
+  autoTitle: 'Automático no app',
+  autoText: 'Precisa de uma chave da API Google Gemini com faturamento ativo (alguns centavos por foto).',
+  copied: 'Texto copiado — cole no Gemini com a foto',
+  aiBilling: 'O Google não permite gerar imagens com chave gratuita. Ative o faturamento no Google AI Studio ou use “Grátis pelo Gemini” acima.',
   unsaved: 'Sair sem salvar? As alterações serão perdidas.',
   appName: 'Meu Amor', tagline: 'Fotos do bebê para cada marco',
   navHome: 'Início', navTimeline: 'Marcos', navCreate: 'Criar', navAlbum: 'Álbum', navMore: 'Mais',
@@ -319,6 +375,14 @@ pt: {
   confirm: 'Confirme', yes: 'Sim', no: 'Não', milestone: 'Marco', choosePhotoHint: 'Pode escolher várias'
 },
 pl: {
+  freeTitle: 'Za darmo przez Gemini',
+  freeText: 'Wybierz motyw → stuknij przycisk: tekst się skopiuje i otworzy się Gemini. Dołącz tam zdjęcie, wklej tekst i zapisz wynik. Potem dodaj go tutaj.',
+  copyOpen: 'Kopiuj i otwórz Gemini',
+  addResult: 'Dodaj wynik do studia',
+  autoTitle: 'Automatycznie w aplikacji',
+  autoText: 'Wymaga klucza Google Gemini API z włączonymi płatnościami (kilka centów za zdjęcie).',
+  copied: 'Skopiowano — wklej w Gemini razem ze zdjęciem',
+  aiBilling: 'Google nie pozwala generować obrazów na darmowym kluczu. Włącz płatności w Google AI Studio albo użyj „Za darmo przez Gemini” powyżej.',
   unsaved: 'Wyjść bez zapisywania? Zmiany zostaną utracone.',
   appName: 'Moja Miłość', tagline: 'Zdjęcia maluszka na każdy etap',
   navHome: 'Start', navTimeline: 'Etapy', navCreate: 'Utwórz', navAlbum: 'Album', navMore: 'Więcej',
@@ -360,6 +424,14 @@ pl: {
   confirm: 'Potwierdź', yes: 'Tak', no: 'Nie', milestone: 'Etap', choosePhotoHint: 'Można wybrać kilka'
 },
 he: {
+  freeTitle: 'בחינם דרך Gemini',
+  freeText: 'בחרו נושא ← הקישו על הכפתור: הבקשה תועתק ו‑Gemini ייפתח. צרפו שם את תמונת התינוק, הדביקו את הבקשה ושמרו את התוצאה. אחר כך הוסיפו אותה כאן.',
+  copyOpen: 'העתקה ופתיחת Gemini',
+  addResult: 'הוספת התוצאה לסטודיו',
+  autoTitle: 'אוטומטי באפליקציה',
+  autoText: 'נדרש מפתח Google Gemini API עם חיוב פעיל (כמה סנטים לתמונה).',
+  copied: 'הבקשה הועתקה — הדביקו אותה ב‑Gemini עם התמונה',
+  aiBilling: 'Google לא מאפשרת יצירת תמונות במפתח חינמי. הפעילו חיוב ב‑Google AI Studio או השתמשו ב״בחינם דרך Gemini״ למעלה.',
   unsaved: 'לצאת בלי לשמור? השינויים יאבדו.',
   appName: 'אהבה שלי', tagline: 'תמונות תינוק לכל אבן דרך',
   navHome: 'בית', navTimeline: 'אבני דרך', navCreate: 'יצירה', navAlbum: 'אלבום', navMore: 'עוד',
@@ -401,6 +473,14 @@ he: {
   confirm: 'אישור', yes: 'כן', no: 'לא', milestone: 'אבן דרך', choosePhotoHint: 'אפשר לבחור כמה'
 },
 ja: {
+  freeTitle: 'Geminiで無料',
+  freeText: 'テーマを選んでボタンを押すと、指示文がコピーされGeminiが開きます。赤ちゃんの写真を添付して指示文を貼り付け、結果を保存。その後ここに追加します。',
+  copyOpen: 'コピーしてGeminiを開く',
+  addResult: '結果をスタジオに追加',
+  autoTitle: 'アプリで自動作成',
+  autoText: '課金を有効にしたGoogle Gemini APIキーが必要です（1枚数セント）。',
+  copied: 'コピーしました。写真と一緒にGeminiに貼り付けてください',
+  aiBilling: 'Googleは無料キーでの画像生成を許可していません。Google AI Studioで課金を有効にするか、上の「Geminiで無料」をご利用ください。',
   unsaved: '保存せずに終了しますか？変更は失われます。',
   appName: 'マイラブ', tagline: '成長の節目ごとに赤ちゃんの写真を',
   navHome: 'ホーム', navTimeline: '節目', navCreate: '作成', navAlbum: 'アルバム', navMore: 'その他',
@@ -442,6 +522,14 @@ ja: {
   confirm: '確認', yes: 'はい', no: 'いいえ', milestone: '節目', choosePhotoHint: '複数選べます'
 },
 zh: {
+  freeTitle: '通过 Gemini 免费生成',
+  freeText: '选择主题 → 点按钮：提示词会被复制并打开 Gemini。在那里附上宝宝照片、粘贴提示词并保存结果，然后添加到这里。',
+  copyOpen: '复制并打开 Gemini',
+  addResult: '把结果添加到工作室',
+  autoTitle: '在应用内自动生成',
+  autoText: '需要已开通计费的 Google Gemini API 密钥（每张几美分）。',
+  copied: '已复制，请和照片一起粘贴到 Gemini',
+  aiBilling: 'Google 不允许免费密钥生成图片。请在 Google AI Studio 开通计费，或使用上方的「通过 Gemini 免费生成」。',
   unsaved: '不保存就退出？更改将会丢失。',
   appName: '我的爱', tagline: '记录宝宝每个成长时刻',
   navHome: '首页', navTimeline: '里程碑', navCreate: '创作', navAlbum: '相册', navMore: '更多',

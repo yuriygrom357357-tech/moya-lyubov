@@ -63,7 +63,7 @@ export async function aiPhotoshoot({ key, model, photo, second, theme, aspect = 
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(b)
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error?.message || ('HTTP ' + r.status));
+    if (!r.ok) { const m = j.error?.message || ('HTTP ' + r.status); const e = new Error(m); e.billing = /limit: 0|free_tier|billing|RESOURCE_EXHAUSTED/i.test(m) || r.status === 429; throw e; }
     return j;
   };
   let j;
@@ -75,7 +75,7 @@ export async function aiPhotoshoot({ key, model, photo, second, theme, aspect = 
   return await (await fetch(`data:${d.mimeType || d.mime_type};base64,${d.data}`)).blob();
 }
 
-function buildPrompt(theme, hasSecond) {
+export function buildPrompt(theme, hasSecond) {
   return [
     'Create a high-end professional baby photoshoot image using the attached photo of the baby' + (hasSecond ? ' (first image) and the adult (second image).' : '.'),
     'CRITICAL: keep the baby\'s face, facial features, skin tone, eye shape, hair and expression exactly the same — it must clearly be the same child.' + (hasSecond ? ' Keep the adult\'s face identical too.' : ''),

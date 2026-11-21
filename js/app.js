@@ -2,7 +2,7 @@ import { db, uid, exportBackup, importBackup } from './db.js';
 import { t, ut, setLang, getLang, detectLang, LANGS, fmtDate } from './i18n.js';
 import { SCENES, SCENE_IDS, PROPS, PROP_IDS, DECOR, DECOR_IDS, EMOJI, PALETTE } from './scenes.js';
 import { fitWidth, Editor, newDoc, FORMATS, makePhotoLayer, makeMilestoneLayer, makeTextLayer, makeDecorLayer, makeEmojiLayer, ensureImages, exportBlob, exportSticker, imgCache, blobToImage, render, layerSize } from './editor.js';
-import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS } from './services.js';
+import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt } from './services.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -517,17 +517,27 @@ async function viewAI(v) {
   const st = { photo: null, second: null, theme: 'studio' };
   v.innerHTML = `<header class="topbar"><button class="icon-btn" data-nav="home" aria-label="${t('close')}">←</button><h1>✨ ${t('aiShoot')}</h1><span></span></header>
   <p class="sub">${t('aiIntro')}</p>
-  ${key ? '' : `<div class="card warn"><p>🔑 ${t('needKey')}</p><button class="btn primary sm" data-settings>${t('openSettings')}</button></div>`}
   <section class="sec"><h2>1 · ${t('step1')}</h2><button class="drop" data-p="photo"><span class="drop-in">📷 ${t('choose')}</span></button></section>
   <section class="sec"><h2>2 · ${t('step2')}</h2><div class="themes">${AI_THEME_IDS.map(id => `<button class="theme ${id === st.theme ? 'on' : ''}" data-theme="${id}">${t('th_' + id)}</button>`).join('')}</div>
     <div class="second" hidden><p class="hint">${t('secondPhoto')}</p><button class="drop sm" data-p="second"><span class="drop-in">👩 ${t('choose')}</span></button></div></section>
-  <button class="btn primary wide big" data-gen disabled>✨ ${t('generate')}</button><p class="hint center gen-hint">↑ ${t('step1')}</p>
+  <div class="card free-card"><h3>🆓 ${t('freeTitle')}</h3><p class="hint">${t('freeText')}</p>
+    <button class="btn primary wide" data-free>📋 ${t('copyOpen')}</button>
+    <button class="btn soft wide" data-import>📥 ${t('addResult')}</button></div>
+  <div class="card"><h3>⚡ ${t('autoTitle')}</h3><p class="hint">${t('autoText')}</p>
+    <button class="btn primary wide" data-gen disabled>✨ ${t('generate')}</button><p class="hint center gen-hint">↑ ${t('step1')}</p>
+    ${key ? '' : `<button class="btn ghost wide" data-settings>🔑 ${t('openSettings')}</button>`}</div>
   <div class="ai-out"></div>`;
   $('[data-settings]', v)?.addEventListener('click', () => aiSettings());
   const genBtn = $('[data-gen]', v);
   const check = () => { genBtn.disabled = !st.photo || (st.theme === 'family' && !st.second); genBtn.title = genBtn.disabled ? t('step1') : ''; $('.gen-hint', v).hidden = !genBtn.disabled; };
   $$('[data-p]', v).forEach(b => b.onclick = async () => { const [f] = await pickFiles(); if (!f) return; st[b.dataset.p] = f; b.innerHTML = `<img src="${URL.createObjectURL(f)}" alt="">`; b.classList.add('has'); check(); });
   $$('[data-theme]', v).forEach(b => b.onclick = () => { st.theme = b.dataset.theme; $$('[data-theme]', v).forEach(x => x.classList.toggle('on', x === b)); $('.second', v).hidden = st.theme !== 'family'; check(); });
+  $('[data-free]', v).onclick = async () => {
+    const prompt = buildPrompt(st.theme, st.theme === 'family');
+    try { await navigator.clipboard.writeText(prompt); toast('📋 ' + t('copied'), 4000); } catch { sheet(`<h3>📋</h3><textarea rows="8" readonly>${esc(prompt)}</textarea>`); }
+    window.open('https://gemini.google.com/app', '_blank', 'noopener');
+  };
+  $('[data-import]', v).onclick = async () => { const [f] = await pickFiles(); if (f) go('studio', { photoBlob: f, milestone: currentMilestone(kid()), label: t('th_' + st.theme) }); };
   genBtn.onclick = async () => {
     const k2 = await db.setting('aiKey'); if (!k2) return aiSettings();
     const out = $('.ai-out', v); genBtn.disabled = true;
@@ -552,7 +562,7 @@ async function viewAI(v) {
           await load(); toast('💗 ' + t('saved'));
         }
       };
-    } catch (e) { console.warn(e); out.innerHTML = `<div class="card warn"><p>${esc(t('err', { e: e.message }))}</p></div>`; }
+    } catch (e) { console.warn(e); out.innerHTML = `<div class="card warn"><p>${e.billing ? t('aiBilling') : esc(t('err', { e: e.message }))}</p></div>`; }
     check();
   };
 }

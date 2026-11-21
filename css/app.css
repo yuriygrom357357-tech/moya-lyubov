@@ -254,3 +254,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--rose); outline: 
 
 @media (min-width: 700px) { body { background: radial-gradient(60% 50% at 10% 10%, #FDE1DE, transparent), radial-gradient(60% 50% at 90% 90%, #FFEDB8, transparent), #FFF6EF fixed; } #app { box-shadow: 0 0 60px rgba(160,100,90,.12); background: linear-gradient(180deg, #FFF6EF, #FFF9EC); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.free-card { background: linear-gradient(140deg, #FFF, #FDEBE6); display: grid; gap: 10px; }
+.free-card h3, .card h3 { margin-bottom: 0; }
