@@ -538,8 +538,14 @@ async function viewAI(v) {
   $$('[data-theme]', v).forEach(b => b.onclick = () => { st.theme = b.dataset.theme; $$('[data-theme]', v).forEach(x => x.classList.toggle('on', x === b)); $('.second', v).hidden = st.theme !== 'family'; check(); });
   $('[data-free]', v).onclick = async () => {
     const prompt = buildPrompt(st.theme, st.theme === 'family');
-    try { await navigator.clipboard.writeText(prompt); toast('📋 ' + t('copied'), 4000); } catch { sheet(`<h3>📋</h3><textarea rows="8" readonly>${esc(prompt)}</textarea>`); }
-    window.open('https://gemini.google.com/app', '_blank', 'noopener');
+    let ok = false; try { await navigator.clipboard.writeText(prompt); ok = true; } catch {}
+    sheet(`<h3>🆓 ${t('freeTitle')}</h3>${ok ? `<p>✅ ${t('copied')}</p>` : ''}
+      <textarea rows="6" readonly class="prompt-box">${esc(prompt)}</textarea>
+      <div class="row gap"><button class="btn soft" data-copy>📋 ${t('copy')}</button>
+      <a class="btn primary" href="https://gemini.google.com/app" target="_blank" rel="noopener">✨ ${t('openGemini')}</a></div>
+      <p class="hint">${t('freeText')}</p>`, {
+      onMount: el => { const ta = $('.prompt-box', el); $('[data-copy]', el).onclick = async () => { ta.select(); try { await navigator.clipboard.writeText(prompt); } catch { document.execCommand && document.execCommand('copy'); } toast('📋 ' + t('copied')); }; }
+    });
   };
   $('[data-import]', v).onclick = async () => { const [f] = await pickFiles(); if (f) go('studio', { photoBlob: f, milestone: currentMilestone(kid()), label: t('th_' + st.theme) }); };
   genBtn.onclick = async () => {

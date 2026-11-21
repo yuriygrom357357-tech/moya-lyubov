@@ -32,6 +32,7 @@ export function unitText(lang, n, unit) {
 
 const S = {
 uk: {
+  copy: 'Копіювати', openGemini: 'Відкрити Gemini',
   freeTitle: 'Безкоштовно через Gemini',
   freeText: 'Оберіть тему → натисніть кнопку: запит скопіюється, відкриється Gemini. Там прикріпіть фото малюка, вставте запит і збережіть результат. Потім додайте його сюди.',
   copyOpen: 'Скопіювати запит і відкрити Gemini',
@@ -81,6 +82,7 @@ uk: {
   confirm: 'Підтвердіть', yes: 'Так', no: 'Ні', milestone: 'Віха', choosePhotoHint: 'Можна кілька — оберете потім'
 },
 en: {
+  copy: 'Copy', openGemini: 'Open Gemini',
   freeTitle: 'Free via Gemini',
   freeText: 'Pick a theme → tap the button: the prompt is copied and Gemini opens. Attach the baby photo there, paste the prompt and save the result. Then add it here.',
   copyOpen: 'Copy prompt & open Gemini',
@@ -130,6 +132,7 @@ en: {
   confirm: 'Please confirm', yes: 'Yes', no: 'No', milestone: 'Milestone', choosePhotoHint: 'You can pick several'
 },
 de: {
+  copy: 'Kopieren', openGemini: 'Gemini öffnen',
   freeTitle: 'Kostenlos über Gemini',
   freeText: 'Thema wählen → Button tippen: Der Prompt wird kopiert und Gemini öffnet sich. Dort Babyfoto anhängen, Prompt einfügen und Ergebnis speichern. Dann hier hinzufügen.',
   copyOpen: 'Prompt kopieren & Gemini öffnen',
@@ -179,6 +182,7 @@ de: {
   confirm: 'Bitte bestätigen', yes: 'Ja', no: 'Nein', milestone: 'Meilenstein', choosePhotoHint: 'Mehrere möglich'
 },
 fr: {
+  copy: 'Copier', openGemini: 'Ouvrir Gemini',
   freeTitle: 'Gratuit via Gemini',
   freeText: 'Choisissez un thème → touchez le bouton : le texte est copié et Gemini s’ouvre. Joignez-y la photo, collez le texte et enregistrez le résultat. Puis ajoutez-le ici.',
   copyOpen: 'Copier et ouvrir Gemini',
@@ -228,6 +232,7 @@ fr: {
   confirm: 'Confirmez', yes: 'Oui', no: 'Non', milestone: 'Étape', choosePhotoHint: 'Plusieurs possibles'
 },
 es: {
+  copy: 'Copiar', openGemini: 'Abrir Gemini',
   freeTitle: 'Gratis con Gemini',
   freeText: 'Elige un tema → toca el botón: se copia el texto y se abre Gemini. Adjunta allí la foto, pega el texto y guarda el resultado. Luego añádelo aquí.',
   copyOpen: 'Copiar y abrir Gemini',
@@ -277,6 +282,7 @@ es: {
   confirm: 'Confirma', yes: 'Sí', no: 'No', milestone: 'Etapa', choosePhotoHint: 'Puedes elegir varias'
 },
 it: {
+  copy: 'Copia', openGemini: 'Apri Gemini',
   freeTitle: 'Gratis con Gemini',
   freeText: 'Scegli un tema → tocca il pulsante: il testo viene copiato e si apre Gemini. Allega la foto, incolla il testo e salva il risultato. Poi aggiungilo qui.',
   copyOpen: 'Copia e apri Gemini',
@@ -326,6 +332,7 @@ it: {
   confirm: 'Conferma', yes: 'Sì', no: 'No', milestone: 'Traguardo', choosePhotoHint: 'Puoi sceglierne più di una'
 },
 pt: {
+  copy: 'Copiar', openGemini: 'Abrir o Gemini',
   freeTitle: 'Grátis pelo Gemini',
   freeText: 'Escolha um tema → toque no botão: o texto é copiado e o Gemini abre. Anexe a foto, cole o texto e salve o resultado. Depois adicione aqui.',
   copyOpen: 'Copiar e abrir o Gemini',
@@ -375,6 +382,7 @@ pt: {
   confirm: 'Confirme', yes: 'Sim', no: 'Não', milestone: 'Marco', choosePhotoHint: 'Pode escolher várias'
 },
 pl: {
+  copy: 'Kopiuj', openGemini: 'Otwórz Gemini',
   freeTitle: 'Za darmo przez Gemini',
   freeText: 'Wybierz motyw → stuknij przycisk: tekst się skopiuje i otworzy się Gemini. Dołącz tam zdjęcie, wklej tekst i zapisz wynik. Potem dodaj go tutaj.',
   copyOpen: 'Kopiuj i otwórz Gemini',
@@ -424,6 +432,7 @@ pl: {
   confirm: 'Potwierdź', yes: 'Tak', no: 'Nie', milestone: 'Etap', choosePhotoHint: 'Można wybrać kilka'
 },
 he: {
+  copy: 'העתקה', openGemini: 'פתיחת Gemini',
   freeTitle: 'בחינם דרך Gemini',
   freeText: 'בחרו נושא ← הקישו על הכפתור: הבקשה תועתק ו‑Gemini ייפתח. צרפו שם את תמונת התינוק, הדביקו את הבקשה ושמרו את התוצאה. אחר כך הוסיפו אותה כאן.',
   copyOpen: 'העתקה ופתיחת Gemini',
@@ -473,6 +482,7 @@ he: {
   confirm: 'אישור', yes: 'כן', no: 'לא', milestone: 'אבן דרך', choosePhotoHint: 'אפשר לבחור כמה'
 },
 ja: {
+  copy: 'コピー', openGemini: 'Geminiを開く',
   freeTitle: 'Geminiで無料',
   freeText: 'テーマを選んでボタンを押すと、指示文がコピーされGeminiが開きます。赤ちゃんの写真を添付して指示文を貼り付け、結果を保存。その後ここに追加します。',
   copyOpen: 'コピーしてGeminiを開く',
@@ -522,6 +532,7 @@ ja: {
   confirm: '確認', yes: 'はい', no: 'いいえ', milestone: '節目', choosePhotoHint: '複数選べます'
 },
 zh: {
+  copy: '复制', openGemini: '打开 Gemini',
   freeTitle: '通过 Gemini 免费生成',
   freeText: '选择主题 → 点按钮：提示词会被复制并打开 Gemini。在那里附上宝宝照片、粘贴提示词并保存结果，然后添加到这里。',
   copyOpen: '复制并打开 Gemini',

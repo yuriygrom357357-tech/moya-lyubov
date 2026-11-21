@@ -257,3 +257,4 @@ input:focus, select:focus, textarea:focus { border-color: var(--rose); outline: 
 
 .free-card { background: linear-gradient(140deg, #FFF, #FDEBE6); display: grid; gap: 10px; }
 .free-card h3, .card h3 { margin-bottom: 0; }
+.prompt-box { font-size: 13px; font-family: ui-monospace, monospace; margin-bottom: 10px; }
