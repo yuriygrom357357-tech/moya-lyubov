@@ -9,8 +9,8 @@ const REVOKED = [];
 
 // Ціна й посилання на оплату. Коли підключите платіжну систему — вставте сюди посилання.
 export const SHOP = {
-  uk: { price: '199 ₴', url: '' },
-  other: { price: '$6.99', url: '' },
+  uk: { price: '199 ₴', url: 'https://yuriygrom357357-tech.github.io/apps/moya-lyubov.html' },
+  other: { price: '199 UAH (~$5)', url: 'https://yuriygrom357357-tech.github.io/apps/moya-lyubov.html' },
   contact: 'm-music@ukr.net'
 };
 
