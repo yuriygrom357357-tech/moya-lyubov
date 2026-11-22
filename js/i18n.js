@@ -627,6 +627,7 @@ zh: {
 }
 };
 
+export function extend(dict) { for (const l in dict) S[l] = Object.assign(S[l] || {}, dict[l]); }
 let cur = 'uk';
 export function setLang(l) { cur = S[l] ? l : 'en'; document.documentElement.lang = cur; document.documentElement.dir = RTL.has(cur) ? 'rtl' : 'ltr'; }
 export function getLang() { return cur; }

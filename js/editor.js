@@ -2,9 +2,16 @@
 import { SCENES, PROPS, DECOR, heartPath, PALETTE } from './scenes.js';
 import { unitText } from './i18n.js';
 import { db } from './db.js';
+import { drawSticker } from './stickers.js';
+import { applyEffect } from './effects.js';
 
 export const FORMATS = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '3:4': [1080, 1440] };
-export const FONT = { display: '"Comfortaa", "Hiragino Maru Gothic ProN", "PingFang SC", "Noto Sans Hebrew", system-ui, sans-serif', script: '"Marck Script", "Comfortaa", cursive' };
+const CJK = '"Hiragino Maru Gothic ProN", "PingFang SC", "Noto Sans Hebrew", system-ui, sans-serif';
+export const FONT = { display: '"Comfortaa", ' + CJK, script: '"Marck Script", "Comfortaa", cursive', festive: '"Lobster", "Comfortaa", ' + CJK, kids: '"Neucha", "Comfortaa", ' + CJK, tall: '"Amatic SC", "Comfortaa", ' + CJK };
+export const FONT_IDS = Object.keys(FONT);
+export const TEXT_STYLES = ['plain', 'outline', 'plate', 'glow', 'arc', 'ribbon'];
+const tstyle = l => l.style || (l.plate ? 'plate' : 'plain');
+const fontW = f => (f === 'script' || f === 'kids' ? 400 : 700);
 
 export function newDoc(fmt = '9:16') {
   const [w, h] = FORMATS[fmt];
@@ -59,10 +66,13 @@ export function layerSize(l) {
   switch (l.type) {
     case 'photo': return l.frame === 'round' || l.frame === 'heart' ? { w: Math.min(l.w0, l.h0), h: Math.min(l.w0, l.h0) } : { w: l.w0, h: l.h0 };
     case 'text': {
-      mctx.font = `700 ${l.size}px ${FONT[l.font]}`;
+      const st = tstyle(l);
+      mctx.font = `${fontW(l.font)} ${l.size}px ${FONT[l.font] || FONT.display}`;
       const lines = textLines(l);
-      const w = Math.max(...lines.map(s => mctx.measureText(s).width)) + (l.plate ? l.size : l.size * 0.2);
-      return { w, h: lines.length * l.size * 1.25 + (l.plate ? l.size * 0.5 : 0) };
+      const tw = Math.max(...lines.map(s => mctx.measureText(s).width));
+      if (st === 'arc') return { w: tw * 0.92 + l.size, h: l.size * 1.2 + tw * 0.22 };
+      const pad = st === 'plate' || st === 'ribbon' ? l.size * (st === 'ribbon' ? 1.6 : 1) : l.size * 0.3;
+      return { w: tw + pad, h: lines.length * l.size * 1.25 + (st === 'plate' || st === 'ribbon' ? l.size * 0.5 : 0) };
     }
     case 'milestone': {
       const txt = unitText(l.lang, l.num, l.unit);
@@ -138,12 +148,32 @@ function drawPhoto(ctx, l) {
 }
 
 function drawText(ctx, l) {
-  const { w, h } = layerSize(l);
-  if (l.plate) { ctx.fillStyle = 'rgba(255,255,255,.82)'; roundRect(ctx, -w / 2, -h / 2, w, h, l.size * 0.5); ctx.fill(); }
-  ctx.font = `700 ${l.size}px ${FONT[l.font]}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = l.color;
+  const st = tstyle(l), { w, h } = layerSize(l);
+  const font = `${fontW(l.font)} ${l.size}px ${FONT[l.font] || FONT.display}`;
+  ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
   const lines = textLines(l), lh = l.size * 1.25;
-  lines.forEach((s, i) => ctx.fillText(s, 0, (i - (lines.length - 1) / 2) * lh));
+  if (st === 'plate') { ctx.fillStyle = 'rgba(255,255,255,.85)'; roundRect(ctx, -w / 2, -h / 2, w, h, l.size * 0.5); ctx.fill(); }
+  if (st === 'ribbon') {
+    const rh = h * 0.86, tail = l.size * 0.55;
+    ctx.fillStyle = shade(l.ribbon || '#F2B8B5', -18);
+    for (const sx of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sx * (w / 2 - tail * 0.6), -rh / 2 + rh * 0.18); ctx.lineTo(sx * (w / 2 + tail * 0.4), -rh / 2 + rh * 0.18); ctx.lineTo(sx * (w / 2 + tail * 0.05), rh * 0.18); ctx.lineTo(sx * (w / 2 + tail * 0.4), rh / 2 + rh * 0.18); ctx.lineTo(sx * (w / 2 - tail * 0.6), rh / 2 + rh * 0.18); ctx.closePath(); ctx.fill(); }
+    ctx.fillStyle = l.ribbon || '#F2B8B5'; ctx.beginPath(); ctx.moveTo(-w / 2 + tail * 0.3, -rh / 2); ctx.quadraticCurveTo(0, -rh / 2 - l.size * 0.25, w / 2 - tail * 0.3, -rh / 2); ctx.lineTo(w / 2 - tail * 0.3, rh / 2); ctx.quadraticCurveTo(0, rh / 2 - l.size * 0.25, -w / 2 + tail * 0.3, rh / 2); ctx.closePath(); ctx.fill();
+  }
+  const paint = (txt, x, y) => {
+    if (st === 'outline') { ctx.lineWidth = l.size * 0.16; ctx.strokeStyle = '#FFFFFF'; ctx.strokeText(txt, x, y); }
+    if (st === 'glow') { ctx.save(); ctx.shadowColor = l.glow || '#FFFFFF'; ctx.shadowBlur = l.size * 0.45; ctx.fillStyle = l.color; for (let k = 0; k < 2; k++) ctx.fillText(txt, x, y); ctx.restore(); }
+    ctx.fillStyle = st === 'ribbon' && !l.colorSet ? '#FFFFFF' : l.color; ctx.fillText(txt, x, y);
+  };
+  if (st === 'arc') {
+    const txt = lines.join(' '); ctx.font = font; const tw = ctx.measureText(txt).width;
+    const R = Math.max(tw * 0.75, l.size * 2), ang = tw / R; let a = -ang / 2;
+    ctx.save(); ctx.translate(0, R - h / 2 + l.size * 0.6);
+    for (const ch of [...txt]) { const cw = ctx.measureText(ch).width; a += cw / 2 / R; ctx.save(); ctx.rotate(a); ctx.translate(0, -R); ctx.lineWidth = l.size * 0.16; ctx.strokeStyle = '#fff'; ctx.strokeText(ch, 0, 0); ctx.fillStyle = l.color; ctx.fillText(ch, 0, 0); ctx.restore(); a += cw / 2 / R; }
+    ctx.restore(); return;
+  }
+  lines.forEach((s, i) => paint(s, 0, (i - (lines.length - 1) / 2) * lh - (st === 'ribbon' ? l.size * 0.05 : 0)));
 }
+function shade(hex, amt) { const n = parseInt(hex.slice(1), 16); const c = v => Math.max(0, Math.min(255, v + amt)); return `rgb(${c(n >> 16 & 255)},${c(n >> 8 & 255)},${c(n & 255)})`; }
 
 const FLAG_COLORS = ['#F2B8B5', '#FFF0C2', '#FBD9C3', '#E58F95', '#F8D98A'];
 function drawMilestone(ctx, l) {
@@ -211,7 +241,7 @@ export function drawLayer(ctx, l) {
   if (l.type === 'photo') drawPhoto(ctx, l);
   else if (l.type === 'text') drawText(ctx, l);
   else if (l.type === 'milestone') drawMilestone(ctx, l);
-  else if (l.type === 'decor') { (DECOR[l.name] || DECOR.heart)(ctx, 200, l.color); }
+  else if (l.type === 'decor') { if (DECOR[l.name]) DECOR[l.name](ctx, 200, l.color); else if (drawSticker(ctx, l.name, 240) === false) DECOR.heart(ctx, 200); }
   else if (l.type === 'emoji') { ctx.font = `180px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(l.ch, 0, 10); }
   ctx.restore();
 }
@@ -224,6 +254,7 @@ export function render(ctx, doc, { bg = true } = {}) {
     ctx.save(); (PROPS[doc.prop] || PROPS.none).draw(ctx, w, h); ctx.restore();
   }
   for (const l of doc.layers) drawLayer(ctx, l);
+  if (doc.effect && doc.effect !== 'none') applyEffect(ctx, doc.effect);
 }
 
 export async function exportBlob(doc, { type = 'image/jpeg', q = 0.92, scale = 1 } = {}) {

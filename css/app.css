@@ -1,3 +1,9 @@
+@font-face { font-family: 'Lobster'; font-weight: 400; font-display: swap; src: url(../fonts/lobster-cyrillic-400-normal.woff2) format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+@font-face { font-family: 'Lobster'; font-weight: 400; font-display: swap; src: url(../fonts/lobster-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0100-024F,U+2000-206F; }
+@font-face { font-family: 'Neucha'; font-weight: 400; font-display: swap; src: url(../fonts/neucha-cyrillic-400-normal.woff2) format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+@font-face { font-family: 'Neucha'; font-weight: 400; font-display: swap; src: url(../fonts/neucha-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0100-024F,U+2000-206F; }
+@font-face { font-family: 'Amatic SC'; font-weight: 700; font-display: swap; src: url(../fonts/amatic-sc-cyrillic-700-normal.woff2) format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+@font-face { font-family: 'Amatic SC'; font-weight: 700; font-display: swap; src: url(../fonts/amatic-sc-latin-700-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0100-024F,U+2000-206F; }
 @font-face { font-family: 'Comfortaa'; font-weight: 400; font-display: swap; src: url(../fonts/comfortaa-cyrillic-400-normal.woff2) format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
 @font-face { font-family: 'Comfortaa'; font-weight: 400; font-display: swap; src: url(../fonts/comfortaa-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0100-024F,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215; }
 @font-face { font-family: 'Comfortaa'; font-weight: 700; font-display: swap; src: url(../fonts/comfortaa-cyrillic-700-normal.woff2) format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
@@ -180,7 +186,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--rose); outline: 
 .st-busy { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; background: rgba(255,248,240,.82); text-align: center; padding: 30px; font-weight: 700; z-index: 5; }
 [hidden] { display: none !important; }
 .st-panel { flex: none; height: clamp(190px, 36vh, 330px); background: var(--cream); padding: 12px 14px 4px; overflow-y: auto; border-radius: 22px 22px 0 0; box-shadow: 0 -6px 20px rgba(120,80,70,.08); }
-.st-tabs { display: grid; grid-template-columns: repeat(6, 1fr); background: var(--cream); padding: 4px 4px calc(6px + var(--safe-b)); border-top: 1px solid var(--line); }
+.st-tabs { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--cream); padding: 4px 4px calc(6px + var(--safe-b)); border-top: 1px solid var(--line); }
 .st-tab { display: grid; justify-items: center; font-size: 10.5px; font-weight: 700; color: var(--ink-soft); min-height: 52px; padding: 4px 0; gap: 2px; overflow: hidden; }
 .st-tab span { font-size: 20px; filter: grayscale(.5); }
 .st-tab.on { color: var(--rose-deep); } .st-tab.on span { filter: none; }
@@ -261,3 +267,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--rose); outline: 
 .puter-card { background: linear-gradient(140deg, #FDE4E1, #FFF0C9); display: grid; gap: 8px; }
 .puter-card .btn.big { margin: 4px 0 0; }
 .spinner.sm { width: 22px; height: 22px; border-width: 3px; display: inline-block; vertical-align: middle; }
+
+.worlds { display: flex; gap: 10px; padding-top: 4px; }
+.world { flex: none; width: 84px; text-align: center; font-size: 11px; font-weight: 700; line-height: 1.25; }
+.world img { width: 84px; height: 150px; object-fit: cover; border-radius: 14px; border: 3px solid transparent; box-shadow: var(--shadow-sm); margin-bottom: 4px; }
+.world.fx img { width: 72px; height: auto; max-height: 128px; margin-inline: auto; }
+.world.fx { width: 76px; }
+.world.on img { border-color: var(--rose-deep); }
+.tale-card { margin-top: 12px; }
+.decor-grid { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); }
+.dec img { width: 48px; }
+.st-tab { font-size: 10px; }

@@ -1,7 +1,12 @@
 import { db, uid, exportBackup, importBackup } from './db.js';
 import { t, ut, setLang, getLang, detectLang, LANGS, fmtDate } from './i18n.js';
 import { SCENES, SCENE_IDS, PROPS, PROP_IDS, DECOR, DECOR_IDS, EMOJI, PALETTE } from './scenes.js';
-import { fitWidth, Editor, newDoc, FORMATS, makePhotoLayer, makeMilestoneLayer, makeTextLayer, makeDecorLayer, makeEmojiLayer, ensureImages, exportBlob, exportSticker, imgCache, blobToImage, render, layerSize } from './editor.js';
+import { fitWidth, FONT_IDS, TEXT_STYLES, Editor, newDoc, FORMATS, makePhotoLayer, makeMilestoneLayer, makeTextLayer, makeDecorLayer, makeEmojiLayer, ensureImages, exportBlob, exportSticker, imgCache, blobToImage, render, layerSize } from './editor.js';
+import './i18n2.js';
+import { CAPTION_KEYS } from './i18n2.js';
+import { ANIMAL_IDS, EXTRA_IDS, drawSticker } from './stickers.js';
+import { EFFECT_IDS } from './effects.js';
+import { WORLDS, WORLD_IDS, applyWorld, buildTalePages } from './worlds.js';
 import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt, puterPhotoshoot, loadPuter } from './services.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -11,6 +16,7 @@ const DAY = 864e5;
 const sod = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 const iso = d => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
 const SWATCHES = ['#E58F95', '#F2B8B5', '#F9D9D6', '#FBD9C3', '#F8D98A', '#FFF0C2', '#D9E8D2', '#DCEBF5', '#E8DDF2', '#FFFFFF', '#6B4E4E', '#8C5A5A'];
+const FONT_CSS = { display: 'Comfortaa', script: "'Marck Script'", festive: 'Lobster', kids: 'Neucha', tall: "'Amatic SC'" };
 const MOMENTS = ['smile', 'tooth', 'sat', 'crawl', 'step', 'word', 'bath', 'walk'];
 const MOMENT_ICON = { smile: '😊', tooth: '🦷', sat: '🧸', crawl: '🐢', step: '👣', word: '💬', bath: '🛁', walk: '🌳', custom: '💗' };
 
@@ -350,10 +356,10 @@ async function viewStudio(v, arg = {}) {
     </header>
     <div class="st-stage"><canvas id="cv"></canvas><div class="st-empty" hidden><button class="btn primary" data-addphoto>📷 ${t('addPhoto')}</button></div><div class="st-busy" hidden><div class="spinner"></div><p></p></div></div>
     <div class="st-panel" id="panel"></div>
-    <nav class="st-tabs">${[['bg', '🌸', 'tBg'], ['photo', '📷', 'tPhoto'], ['mile', '🎉', 'tMile'], ['text', '✍️', 'tText'], ['decor', '⭐', 'tDecor'], ['format', '📐', 'tFormat']].map(([id, ic, key]) => `<button class="st-tab" data-tab="${id}"><span>${ic}</span>${t(key)}</button>`).join('')}</nav>
+    <nav class="st-tabs">${[['worlds', '🪄', 'tWorlds'], ['bg', '🌸', 'tBg'], ['photo', '📷', 'tPhoto'], ['mile', '🎉', 'tMile'], ['text', '✍️', 'tText'], ['decor', '🧸', 'tDecor'], ['fx', '✨', 'tFx']].map(([id, ic, key]) => `<button class="st-tab" data-tab="${id}"><span>${ic}</span>${t(key)}</button>`).join('')}</nav>
   </div>`;
   const ed = S.editor = new Editor($('#cv', v), doc, { onChange: () => syncTop(), onSelect: (l, live) => { if (!live) panel(); else syncSliders(l); } });
-  let tab = doc.layers.some(l => l.type === 'photo') ? 'bg' : 'photo';
+  let tab = doc.layers.some(l => l.type === 'photo') ? 'worlds' : 'photo';
   const empty = $('.st-empty', v);
   const syncTop = () => { $('[data-undo]', v).disabled = !ed.canUndo; $('[data-redo]', v).disabled = !ed.canRedo; empty.hidden = doc.layers.some(l => l.type === 'photo'); };
   const busy = (msg) => { const b = $('.st-busy', v); b.hidden = !msg; if (msg) $('p', b).textContent = msg; };
@@ -397,6 +403,24 @@ async function viewStudio(v, arg = {}) {
     busy(null); panel();
   }
 
+  async function makeTale() {
+    const ph = doc.layers.find(x => x.type === 'photo');
+    if (!ph) { toast(t('taleNeed'), 3500); tab = 'photo'; return panel(); }
+    busy(t('taleMaking'));
+    try {
+      const name = k.name, texts = [1, 2, 3, 4].map(i => t('tale' + i, { name })), title = t('taleTitle', { name });
+      const pages = buildTalePages(ph, texts, title); const ids = [];
+      for (const [i, pd] of pages.entries()) {
+        busy(`${t('taleMaking')} ${i + 1}/4`);
+        const full = await exportBlob(pd); const th = (await downscale(full, 420, 'image/jpeg', 0.82)).blob;
+        const id = uid(); ids.push(id);
+        await db.put('items', { id, kidId: S.kidId, created: Date.now() + i, date, label: `${t('tale')} ${i + 1}/4`, doc: pd, originalKey: ph.imgKey, fullKey: await db.putBlob(full), thumbKey: await db.putBlob(th), tale: title });
+      }
+      await load(); busy(null); toast('📖 ' + t('taleDone'), 3500);
+      go('story', { ids, title });
+    } catch (e) { console.warn(e); busy(null); toast(t('err', { e: e.message }), 4000); }
+  }
+
   // --- Панель ---
   function sw(cur, attr = 'data-color') { return `<div class="swatches">${SWATCHES.map(c => `<button class="sw ${c === cur ? 'on' : ''}" ${attr}="${c}" style="--c:${c}" aria-label="${c}"></button>`).join('')}<label class="sw sw-pick" aria-label="${t('color')}"><input type="color" ${attr}-pick value="${cur && cur.length === 7 ? cur : '#E58F95'}"></label></div>`; }
   function range(name, min, max, step, val, lbl) { return `<label class="rng"><span>${lbl}</span><input type="range" data-r="${name}" min="${min}" max="${max}" step="${step}" value="${val}"></label>`; }
@@ -406,7 +430,9 @@ async function viewStudio(v, arg = {}) {
   }
   function syncSliders(l) { const p = $('#panel'); if (!p || !l) return; const s = p.querySelector('[data-r=s]'), r = p.querySelector('[data-r=r]'); if (s) s.value = l.s; if (r) r.value = Math.round(l.r * 180 / Math.PI); }
   function sceneThumb(id) { const c = document.createElement('canvas'); c.width = 90; c.height = 120; const x = c.getContext('2d'); x.scale(90 / 1080, 120 / 1440); SCENES[id].draw(x, 1080, 1440, SCENES[id].color); return c.toDataURL(); }
-  function decorThumb(id) { const c = document.createElement('canvas'); c.width = 64; c.height = 64; const x = c.getContext('2d'); x.translate(32, 32); x.scale(0.26, 0.26); DECOR[id](x, 200); return c.toDataURL(); }
+  function decorThumb(id) { const c = document.createElement('canvas'); c.width = 72; c.height = 72; const x = c.getContext('2d'); x.translate(36, 38); x.scale(0.26, 0.26); if (DECOR[id]) DECOR[id](x, 200); else drawSticker(x, id, 240); return c.toDataURL(); }
+  function worldThumb(id) { const d = newDoc('9:16'); applyWorld(d, id, null); const c = document.createElement('canvas'); c.width = 84; c.height = 150; const x = c.getContext('2d'); x.scale(84 / 1080, 150 / 1920); render(x, d); return c.toDataURL(); }
+  function fxThumb(id) { const d = JSON.parse(JSON.stringify(doc)); d.effect = id; const c = document.createElement('canvas'); c.width = 72; c.height = Math.round(72 * d.h / d.w); const x = c.getContext('2d'); x.scale(72 / d.w, c.height / d.h); render(x, d); return c.toDataURL(); }
   const thumbs = {};
   function panel() {
     const p = $('#panel'); const l = ed.layer();
@@ -417,15 +443,20 @@ async function viewStudio(v, arg = {}) {
       if (l.type === 'photo') h += `<div class="row gap wrap"><button class="btn ${l.cut ? 'soft' : 'primary'} sm" data-act="cut">✂️ ${l.cut ? t('original') : t('removeBg')}</button>
           <button class="chip ${l.shadow ? 'on' : ''}" data-tog="shadow">${t('shadow')}</button><button class="chip ${l.outline ? 'on' : ''}" data-tog="outline">${t('outline')}</button></div>
           ${l.cut ? '' : `<div class="lbl">${t('frame')}</div><div class="chips wrap">${['soft', 'none', 'round', 'oval', 'heart'].map(f => `<button class="chip ${l.frame === f ? 'on' : ''}" data-frame="${f}">${t('fr_' + f)}</button>`).join('')}</div>`}`;
-      if (l.type === 'text') h += `<textarea class="txt" data-text rows="2" maxlength="120">${esc(l.text)}</textarea>
-          <div class="chips"><button class="chip ${l.font === 'display' ? 'on' : ''}" data-font="display" style="font-family:Comfortaa">${t('fontDisplay')}</button><button class="chip ${l.font === 'script' ? 'on' : ''}" data-font="script" style="font-family:'Marck Script'">${t('fontScript')}</button><button class="chip ${l.plate ? 'on' : ''}" data-tog="plate">▭</button></div>${sw(l.color)}`;
+      if (l.type === 'text') { const st = l.style || (l.plate ? 'plate' : 'plain');
+        h += `<textarea class="txt" data-text rows="2" maxlength="120">${esc(l.text)}</textarea>
+          <div class="lbl">${t('fontLbl')}</div><div class="chips scroll-x">${FONT_IDS.map(f => `<button class="chip ${l.font === f ? 'on' : ''}" data-font="${f}" style="font-family:${FONT_CSS[f]}">${t('fn_' + f)}</button>`).join('')}</div>
+          <div class="lbl">${t('styleLbl')}</div><div class="chips scroll-x">${TEXT_STYLES.map(x => `<button class="chip ${st === x ? 'on' : ''}" data-tstyle="${x}">${t('ts_' + x)}</button>`).join('')}</div>
+          <div class="lbl">${t('color')}</div>${sw(l.color)}
+          ${st === 'ribbon' ? `<div class="lbl">${t('ribbonColor')}</div>${sw(l.ribbon || '#F2B8B5', 'data-rcolor')}` : ''}`; }
       if (l.type === 'milestone') h += mileControls(l) + sw(l.color);
       if (l.type === 'decor') h += sw(l.color);
       h += common(l);
     } else if (tab === 'bg') {
       h += `<div class="lbl">${t('tBg')}</div><div class="scenes scroll-x">${SCENE_IDS.map(id => `<button class="scene ${doc.scene === id ? 'on' : ''}" data-scene="${id}"><img src="${thumbs['s' + id] ||= sceneThumb(id)}" alt=""><span>${t('sc_' + id)}</span></button>`).join('')}</div>
         <div class="lbl">${t('color')}</div>${sw(doc.sceneColor || SCENES[doc.scene].color, 'data-scolor')}
-        <div class="lbl">${t('propLabel')}</div><div class="chips wrap">${PROP_IDS.map(id => `<button class="chip ${doc.prop === id ? 'on' : ''}" data-prop="${id}">${t('pr_' + id)}</button>`).join('')}</div>`;
+        <div class="lbl">${t('propLabel')}</div><div class="chips wrap">${PROP_IDS.map(id => `<button class="chip ${doc.prop === id ? 'on' : ''}" data-prop="${id}">${t('pr_' + id)}</button>`).join('')}</div>
+        <div class="lbl">${t('tFormat')}</div><div class="fmts">${Object.keys(FORMATS).map(f => { const [w, hh] = FORMATS[f]; return `<button class="fmt ${doc.fmt === f ? 'on' : ''}" data-fmt="${f}"><i style="aspect-ratio:${w}/${hh}"></i><span>${t('f' + f.replace(':', ''))}</span></button>`; }).join('')}</div>`;
     } else if (tab === 'photo') {
       const photos = doc.layers.filter(x => x.type === 'photo');
       h += `${photos.length ? `<button class="btn primary wide" data-act="addphoto">📷 ${t('addPhoto')}</button>` : ''}
@@ -437,12 +468,19 @@ async function viewStudio(v, arg = {}) {
       h += `<div class="chips wrap">${sugg.map(m => `<button class="chip soft" data-addms="${m.num}|${m.unit}|${m.key}">🎉 ${msLabel(m)}</button>`).join('')}</div>
         <div class="lbl">${t('addMile')}</div>${mileControls({ num: cur?.num || 1, unit: cur?.unit || 'month', style: 'garland' }, true)}`;
     } else if (tab === 'text') {
-      h += `<div class="row gap"><input class="txt" data-newtext placeholder="${t('textPh')}" maxlength="120"><button class="btn primary sm" data-act="addtext">+</button></div>
+      h += `<div class="lbl">✍️ ${t('yourText')}</div><div class="row gap"><input class="txt" data-newtext placeholder="${t('textPh')}" maxlength="120" enterkeyhint="done"><button class="btn primary sm" data-act="addtext">+ ${t('addText')}</button></div>
+        <div class="lbl">${t('captionsLbl')}</div><div class="chips wrap">${CAPTION_KEYS.map(c => `<button class="chip soft" data-quick="${esc(t(c))}">${esc(t(c))}</button>`).join('')}</div>
         <div class="chips wrap"><button class="chip soft" data-quick="${esc(k.name)}">👶 ${esc(k.name)}</button><button class="chip soft" data-quick="${esc(fmtDate(date))}">📅 ${esc(fmtDate(date))}</button><button class="chip soft" data-quick="${esc(ageText(k.birth, date))}">⏳ ${esc(ageText(k.birth, date))}</button><button class="chip soft" data-quick="💗 ${t('appName')} 💗">💗 ${t('appName')}</button></div>`;
     } else if (tab === 'decor') {
-      h += `<div class="decor-grid">${DECOR_IDS.map(id => `<button class="dec" data-decor="${id}"><img src="${thumbs['d' + id] ||= decorThumb(id)}" alt="${id}"></button>`).join('')}${EMOJI.map(e => `<button class="dec emo" data-emoji="${e}">${e}</button>`).join('')}</div>`;
-    } else if (tab === 'format') {
-      h += `<div class="fmts">${Object.keys(FORMATS).map(f => { const [w, hh] = FORMATS[f]; return `<button class="fmt ${doc.fmt === f ? 'on' : ''}" data-fmt="${f}"><i style="aspect-ratio:${w}/${hh}"></i><span>${t('f' + f.replace(':', ''))}</span></button>`; }).join('')}</div>`;
+      const grid = ids => `<div class="decor-grid">${ids.map(id => `<button class="dec" data-decor="${id}" aria-label="${id}"><img src="${thumbs['d' + id] ||= decorThumb(id)}" alt=""></button>`).join('')}</div>`;
+      h += `<div class="lbl">🐾 ${t('secAnimals')}</div>${grid(ANIMAL_IDS)}<div class="lbl">🎀 ${t('secDecor')}</div>${grid([...EXTRA_IDS, ...DECOR_IDS])}
+        <div class="lbl">😊 ${t('secEmoji')}</div><div class="decor-grid">${EMOJI.map(e => `<button class="dec emo" data-emoji="${e}">${e}</button>`).join('')}</div>`;
+    } else if (tab === 'worlds') {
+      const ph1 = doc.layers.find(x => x.type === 'photo');
+      h += `${ph1 && !ph1.cut ? `<button class="btn primary wide cut-tip" data-cutfirst="${ph1.id}">✂️ ${t('cutTip')}</button>` : ''}<p class="hint">${t('worldsHint')}</p><div class="worlds scroll-x">${WORLD_IDS.map(id => `<button class="world ${doc.world === id ? 'on' : ''}" data-world="${id}"><img src="${thumbs['w' + id] ||= worldThumb(id)}" alt=""><span>${t('w_' + id)}</span></button>`).join('')}</div>
+        <button class="big-card pink tale-card" data-act="tale"><span class="bc-ic">📖</span><span><b>${t('taleBtn')}</b><small>${t('taleSub')}</small></span></button>`;
+    } else if (tab === 'fx') {
+      h += `<p class="hint">${t('fxHint')}</p><div class="worlds scroll-x">${EFFECT_IDS.map(id => `<button class="world fx ${(doc.effect || 'none') === id ? 'on' : ''}" data-fx="${id}"><img src="${fxThumb(id)}" alt=""><span>${t('fx_' + id)}</span></button>`).join('')}</div>`;
     }
     p.innerHTML = h;
   }
@@ -460,10 +498,12 @@ async function viewStudio(v, arg = {}) {
     const l = ed.layer(); const el = e.target;
     if (el.dataset.r && l) { const val = +el.value; ed.update(() => { if (el.dataset.r === 'r') l.r = val * Math.PI / 180; else l[el.dataset.r] = val; }, { commit: false }); ed.commitSoon(); }
     if (el.hasAttribute('data-text') && l) { ed.update(() => { l.text = el.value; }, { commit: false }); ed.commitSoon(); }
-    if (el.hasAttribute('data-color-pick') && l) { ed.update(() => { l.color = el.value; }, { commit: false }); ed.commitSoon(); }
+    if (el.hasAttribute('data-color-pick') && l) { ed.update(() => { l.color = el.value; l.colorSet = true; }, { commit: false }); ed.commitSoon(); }
+    if (el.hasAttribute('data-rcolor-pick') && l) { ed.update(() => { l.ribbon = el.value; }, { commit: false }); ed.commitSoon(); }
     if (el.hasAttribute('data-scolor-pick')) { ed.update(d => { d.sceneColor = el.value; }, { commit: false }); ed.commitSoon(); }
     if (el.hasAttribute('data-num')) { const n = Math.max(1, Math.min(999, parseInt(el.value) || 1)); if (l?.type === 'milestone') { ed.update(() => { l.num = n; }, { commit: false }); ed.commitSoon(); } else newMile.num = n; }
   });
+  P.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('[data-newtext]')) { e.preventDefault(); P.querySelector('[data-act=addtext]').click(); } });
   P.addEventListener('change', e => {
     const l = ed.layer(); const el = e.target;
     if (el.hasAttribute('data-unit')) { if (l?.type === 'milestone') ed.update(() => { l.unit = el.value; }); else newMile.unit = el.value; }
@@ -474,17 +514,22 @@ async function viewStudio(v, arg = {}) {
     if (d.scene) { ed.update(dd => { dd.scene = d.scene; dd.sceneColor = null; }); return panel(); }
     if (d.scolor) { ed.update(dd => { dd.sceneColor = d.scolor; }); return panel(); }
     if (d.prop) { ed.update(dd => { dd.prop = d.prop; }); return panel(); }
-    if (d.color && l) { ed.update(() => { l.color = d.color; }); return panel(); }
+    if (d.color && l) { ed.update(() => { l.color = d.color; l.colorSet = true; }); return panel(); }
+    if (d.rcolor && l) { ed.update(() => { l.ribbon = d.rcolor; }); return panel(); }
+    if (d.tstyle && l) { ed.update(() => { l.style = d.tstyle; delete l.plate; l.s = 1; fitWidth(l, doc, 0.95); }); return panel(); }
+    if (d.world) { ed.update(dd => { applyWorld(dd, d.world, t('w_' + d.world)); dd.world = d.world; }); label = label || t('w_' + d.world); return panel(); }
+    if (d.fx) { ed.update(dd => { dd.effect = d.fx; }); return panel(); }
     if (d.frame && l) { ed.update(() => { l.frame = d.frame; }); return panel(); }
     if (d.tog && l) { ed.update(() => { l[d.tog] = !l[d.tog]; }); return panel(); }
-    if (d.font && l) { ed.update(() => { l.font = d.font; }); return panel(); }
+    if (d.font && l) { ed.update(() => { l.font = d.font; l.s = 1; fitWidth(l, doc, 0.95); }); return panel(); }
     if (d.sel) return ed.select(d.sel);
+    if (d.cutfirst) { const pl = ed.layer(d.cutfirst); return pl && cutBg(pl); }
     if (d.mstyle) { if (l?.type === 'milestone') { ed.update(() => { l.style = d.mstyle; l.s = 1; fitWidth(l, doc); l.y = d.mstyle === 'garland' ? doc.h * 0.16 : l.y; }); } else newMile.style = d.mstyle; return panel(); }
     if (d.step) { const inp = P.querySelector('[data-num]'); inp.value = Math.max(1, (+inp.value || 1) + +d.step); inp.dispatchEvent(new Event('input', { bubbles: true })); if (l?.type === 'milestone') ed.commit(); return; }
     if (d.addms) { const [num, unit, key] = d.addms.split('|'); ed.add(makeMilestoneLayer(doc, +num, unit, getLang(), 'garland')); milestoneKey = key; label = ut(+num, unit); return; }
     if (d.decor) return ed.add(makeDecorLayer(doc, d.decor));
     if (d.emoji) return ed.add(makeEmojiLayer(doc, d.emoji));
-    if (d.quick) return ed.add(Object.assign(makeTextLayer(doc, d.quick, 'script'), { y: doc.h * (0.75 + Math.random() * 0.1) }));
+    if (d.quick) return ed.add(fitWidth(Object.assign(makeTextLayer(doc, d.quick, 'festive'), { style: 'outline', color: PALETTE.roseDeep, colorSet: true, y: doc.h * (0.78 + Math.random() * 0.08) }), doc, 0.9));
     if (d.fmt) {
       const [w, h] = FORMATS[d.fmt]; const ky = h / doc.h;
       ed.update(dd => { dd.layers.forEach(x => { x.y *= ky; }); dd.fmt = d.fmt; dd.w = w; dd.h = h; });
@@ -494,7 +539,8 @@ async function viewStudio(v, arg = {}) {
       case 'addphoto': return addPhoto({ frame: 'soft' });
       case 'addparent': return addPhoto({ frame: 'heart', x: doc.w * 0.68, y: doc.h * 0.5, s: 0.7 });
       case 'cut': return cutBg(l);
-      case 'addtext': { const inp = P.querySelector('[data-newtext]'); if (!inp.value.trim()) return inp.focus(); return ed.add(makeTextLayer(doc, inp.value.trim(), 'script')); }
+      case 'addtext': { const inp = P.querySelector('[data-newtext]'); if (!inp.value.trim()) return inp.focus(); return ed.add(fitWidth(Object.assign(makeTextLayer(doc, inp.value.trim(), 'festive'), { style: 'outline', color: PALETTE.roseDeep, colorSet: true }), doc, 0.9)); }
+      case 'tale': return makeTale();
       case 'addmile': { const ml = makeMilestoneLayer(doc, newMile.num, newMile.unit, getLang(), newMile.style); ml.y += doc.layers.filter(x => x.type === 'milestone').length * doc.h * 0.12; ed.add(ml); label = label || ut(newMile.num, newMile.unit); return; }
       case 'dup': return ed.duplicate();
       case 'up': return ed.order(1);
@@ -601,9 +647,9 @@ async function aiSettings() {
 }
 
 // ---------- Історія росту (слайдшоу + відео) ----------
-async function viewStory(v) {
-  const items = kidItems().slice().reverse();
-  v.innerHTML = `<div class="story"><header class="st-top dark"><button class="icon-btn" data-x aria-label="${t('close')}">←</button><b>${t('story')}</b><span></span></header>
+async function viewStory(v, arg = {}) {
+  const items = arg.ids ? arg.ids.map(id => S.items.find(i => i.id === id)).filter(Boolean) : kidItems().slice().reverse();
+  v.innerHTML = `<div class="story"><header class="st-top dark"><button class="icon-btn" data-x aria-label="${t('close')}">←</button><b>${esc(arg.title || t('story'))}</b><span></span></header>
     <div class="story-stage"><canvas id="scv" width="1080" height="1920"></canvas></div>
     <div class="story-bar"><button class="btn primary" data-play>▶ ${t('play')}</button><button class="btn soft" data-rec>🎬 ${t('saveVideo')}</button></div></div>`;
   const cv = $('#scv', v), ctx = cv.getContext('2d');
@@ -709,7 +755,7 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.inst
   setLang((await db.setting('lang')) || detectLang());
   document.title = t('appName');
   await load();
-  try { await Promise.all([document.fonts.load('700 20px Comfortaa'), document.fonts.load('400 20px "Marck Script"')]); } catch {}
+  try { await Promise.all(['700 20px Comfortaa', '400 20px "Marck Script"', '400 20px Lobster', '400 20px Neucha', '700 20px "Amatic SC"'].map(f => document.fonts.load(f, 'Аa'))); } catch {}
   go(S.kids.length ? 'home' : 'onboard');
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
 })();
