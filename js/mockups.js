@@ -1,3 +1,4 @@
+import { FIGURES } from './figures.js';
 // «Де фото»: фото малюка у різних місцях — на столі, по ТБ, на обкладинці, у хмаринці, 3D-сердечко, статуетка тощо.
 // Кожна функція малює сцену W×H (формат 4:5) і вставляє зображення. Усі розміри — у частках W, тож працює і для мініатюр.
 
@@ -144,21 +145,6 @@ export const MOCKUPS = {
     heartP(ctx, cx, cy, s); ctx.lineWidth = W * 0.014; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.stroke();
     ctx.save(); ctx.globalAlpha = 0.8; ctx.strokeStyle = '#fff'; ctx.lineWidth = W * 0.012; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(cx - s * 0.27, cy - s * 0.4, s * 0.16, Math.PI * 1.1, Math.PI * 1.45); ctx.stroke(); ctx.restore();
   },
-  statuette(ctx, W, H, o) {
-    ctx.fillStyle = vg(ctx, 0, 0, 0, H, [[0, '#FBEFF3'], [0.7, '#F3DDE4'], [1, '#E9CDD6']]); ctx.fillRect(0, 0, W, H);
-    const spot = ctx.createRadialGradient(W / 2, H * 0.35, 0, W / 2, H * 0.35, W * 0.6); spot.addColorStop(0, 'rgba(255,255,255,.75)'); spot.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = spot; ctx.fillRect(0, 0, W, H);
-    const bx = W / 2, by = H * 0.8, bw = W * 0.34, bh = H * 0.1, top = W * 0.07;
-    ctx.fillStyle = 'rgba(120,60,80,.2)'; ctx.beginPath(); ctx.ellipse(bx, by + bh + top * 0.4, bw * 1.25, top * 0.7, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = vg(ctx, bx - bw, 0, bx + bw, 0, [[0, '#E7A9B6'], [0.45, '#F8D3DB'], [1, '#D98C9C']]); ctx.beginPath(); ctx.ellipse(bx, by + bh, bw, top, 0, 0, Math.PI); ctx.lineTo(bx - bw, by); ctx.ellipse(bx, by, bw, top, 0, Math.PI, 0, true); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#F8D98A'; ctx.beginPath(); ctx.ellipse(bx, by, bw, top, 0, 0, 7); ctx.fill(); ctx.fillStyle = vg(ctx, bx - bw, by - top, bx + bw, by + top, [[0, '#FFF0F3'], [1, '#F6C9D3']]); ctx.beginPath(); ctx.ellipse(bx, by - W * 0.005, bw * 0.95, top * 0.85, 0, 0, 7); ctx.fill();
-    if (o.name) { const pw = bw * 1.1, ph = bh * 0.5; ctx.fillStyle = vg(ctx, 0, by + bh * 0.3, 0, by + bh * 0.3 + ph, [[0, '#FFE9A8'], [1, '#E9C46A']]); rr(ctx, bx - pw / 2, by + bh * 0.35, pw, ph, ph * 0.2); ctx.fill(); ctx.fillStyle = '#7A5A2E'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; let f = ph * 0.6; ctx.font = `700 ${f}px Comfortaa, sans-serif`; const nw = ctx.measureText(o.name).width; if (nw > pw * 0.9) { f *= pw * 0.9 / nw; ctx.font = `700 ${f}px Comfortaa, sans-serif`; } ctx.fillText(o.name, bx, by + bh * 0.35 + ph / 2); }
-    const toy = o.toy || o.img; ctx.save(); shadow(ctx, W * 0.03, W * 0.015, 'rgba(120,60,80,.35)');
-    const iw = toy.width || toy.naturalWidth, ih = toy.height || toy.naturalHeight, k = Math.min((W * 0.62) / iw, (H * 0.62) / ih);
-    if (o.toy) ctx.drawImage(toy, bx - iw * k / 2, by - ih * k + top * 0.4, iw * k, ih * k);
-    else { ctx.beginPath(); ctx.ellipse(bx, by - H * 0.28, W * 0.26, H * 0.28, 0, 0, 7); ctx.clip(); cover(ctx, toy, bx - W * 0.26, by - H * 0.56, W * 0.52, H * 0.56); }
-    ctx.restore();
-    for (const [x, y, s] of [[0.2, 0.2, 0.025], [0.82, 0.3, 0.02], [0.75, 0.12, 0.015]]) { ctx.save(); ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = W * 0.02; ctx.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? W * s * 0.2 : W * s, a = i * Math.PI / 4; ctx.lineTo(W * x + Math.cos(a) * r, H * y + Math.sin(a) * r); } ctx.fill(); ctx.restore(); }
-  },
   fridge(ctx, W, H, o) {
     ctx.fillStyle = vg(ctx, 0, 0, W, 0, [[0, '#E3F1EA'], [0.5, '#F0F8F4'], [1, '#DCEDE4']]); ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = 'rgba(0,0,0,.05)'; ctx.fillRect(0, H * 0.18, W, H * 0.008); ctx.fillStyle = '#C9D9D0'; rr(ctx, W * 0.9, H * 0.28, W * 0.03, H * 0.3, W * 0.015); ctx.fill();
@@ -291,6 +277,7 @@ export const MOCKUPS = {
   }
 };
 function circle(ctx, x, y, r, c) { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+Object.assign(MOCKUPS, FIGURES);
 export const MOCKUP_IDS = Object.keys(MOCKUPS);
 
 export function renderMockup(id, W, H, o) {

@@ -8,7 +8,7 @@ import { ANIMAL_IDS, EXTRA_IDS, drawSticker } from './stickers.js';
 import { EFFECT_IDS } from './effects.js';
 import { WORLDS, WORLD_IDS, applyWorld, buildTalePages } from './worlds.js';
 import './i18n3.js';
-import { MOCKUP_IDS, renderMockup, toyify } from './mockups.js';
+import { MOCKUP_IDS, renderMockup } from './mockups.js';
 import { PATTERNS, PALETTES } from './scenes.js';
 import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt, puterPhotoshoot, loadPuter } from './services.js';
 
@@ -583,14 +583,16 @@ async function addPhotoToDoc(doc, file, extra = {}) {
 // ---------- «Де фото»: мокапи ----------
 function mockOpts(src) {
   const k = kid(); const now = new Date();
-  return { img: src.img, toy: src.toy || null, name: k?.name || '', t, issue: `№ ${now.getMonth() + 1} · ${fmtDate(now, { month: 'long', year: 'numeric' })}`, date: fmtDate(now, { weekday: 'long', day: 'numeric', month: 'long' }), year: String(now.getFullYear()), tale: t('taleTitle', { name: k?.name || '' }) };
+  return { img: src.img, cut: src.cut || null, name: k?.name || '', age: k ? ageText(k.birth) : '', t, issue: `№ ${now.getMonth() + 1} · ${fmtDate(now, { month: 'long', year: 'numeric' })}`, date: fmtDate(now, { weekday: 'long', day: 'numeric', month: 'long' }), year: String(now.getFullYear()), tale: t('taleTitle', { name: k?.name || '' }) };
 }
 function openMockups(src) {
-  if (src.cut && !src.toy) { try { src.toy = toyify(src.cut); } catch (e) { console.warn(e); } }
-  const o = mockOpts(src);
+  const o = src._o ||= mockOpts(src);
+  const tile = id => `<button class="mock" data-mk="${id}"><canvas width="216" height="270"></canvas><span>${t('mk_' + id)}</span></button>`;
+  const figs = MOCKUP_IDS.filter(id => id.startsWith('fig_')), places = MOCKUP_IDS.filter(id => !id.startsWith('fig_'));
   const close = sheet(`<h3>🖼️ ${t('whereTitle')}</h3><p class="hint">${t('whereHint')}</p>
-    ${src.toy ? '' : `<p class="hint">🗿 ${t('statueTip')}</p>`}
-    <div class="mock-grid">${MOCKUP_IDS.map(id => `<button class="mock" data-mk="${id}"><canvas width="216" height="270"></canvas><span>${t('mk_' + id)}</span></button>`).join('')}</div>`, {
+    <h4 class="mock-h">🗿 ${t('figTitle')}</h4><p class="hint">✅ ${t('figHint')}</p>${src.cut ? '' : `<p class="hint warn-tip">✂️ ${t('statueTip')}</p>`}
+    <div class="mock-grid">${figs.map(tile).join('')}</div>
+    <h4 class="mock-h">🏠 ${t('placesTitle')}</h4><div class="mock-grid">${places.map(tile).join('')}</div>`, {
     cls: 'tall', onMount: (el) => {
       const tiles = $$('[data-mk]', el); let i = 0;
       const step = () => { if (i >= tiles.length) return; const b = tiles[i++]; try { b.querySelector('canvas').getContext('2d').drawImage(renderMockup(b.dataset.mk, 216, 270, o), 0, 0); } catch (e) { console.warn(e); } requestAnimationFrame(step); };
