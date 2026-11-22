@@ -4,7 +4,7 @@ import { SCENES, SCENE_IDS, PROPS, PROP_IDS, DECOR, DECOR_IDS, EMOJI, PALETTE } 
 import { fitWidth, FONT_IDS, TEXT_STYLES, Editor, newDoc, FORMATS, makePhotoLayer, makeMilestoneLayer, makeTextLayer, makeDecorLayer, makeEmojiLayer, ensureImages, exportBlob, exportSticker, imgCache, blobToImage, render, layerSize } from './editor.js';
 import './i18n2.js';
 import { CAPTION_KEYS } from './i18n2.js';
-import { ANIMAL_IDS, EXTRA_IDS, drawSticker } from './stickers.js';
+import { ANIMAL_IDS, EXTRA_IDS, FUN_IDS, drawSticker } from './stickers.js';
 import { EFFECT_IDS } from './effects.js';
 import { WORLDS, WORLD_IDS, applyWorld, buildTalePages } from './worlds.js';
 import './i18n3.js';
@@ -20,6 +20,8 @@ const sod = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 const iso = d => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
 const SWATCHES = ['#E58F95', '#F2B8B5', '#F9D9D6', '#FBD9C3', '#F8D98A', '#FFF0C2', '#D9E8D2', '#DCEBF5', '#E8DDF2', '#FFFFFF', '#6B4E4E', '#8C5A5A'];
 function sceneName(id) { const sc = SCENES[id]; if (sc?.pattern) return `${t('pat_' + sc.pattern[0])} · ${t('pal_' + sc.pattern[1])}`; return t('sc_' + id); }
+const PEN_HEART = `<svg class="pen-heart" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 34C8 25 3 18 4 11c1-5 6-8 10-6 3 1 5 4 6 7 1-3 3-6 6-7 4-2 9 1 10 6 1 7-4 14-16 23z" fill="#F29AA0" stroke="#D9677A" stroke-width="1.6"/><path d="M9 11c1-2 3-3 5-2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const brandHTML = (cls = '') => `<span class="brand ${cls}">${esc(t('appName'))}${PEN_HEART}</span>`;
 const FONT_CSS = { display: 'Comfortaa', script: "'Marck Script'", festive: 'Lobster', kids: 'Neucha', tall: "'Amatic SC'" };
 const MOMENTS = ['smile', 'tooth', 'sat', 'crawl', 'step', 'word', 'bath', 'walk'];
 const MOMENT_ICON = { smile: '😊', tooth: '🦷', sat: '🧸', crawl: '🐢', step: '👣', word: '💬', bath: '🛁', walk: '🌳', custom: '💗' };
@@ -140,8 +142,8 @@ function viewOnboard(v, { edit } = {}) {
   const k = edit ? S.kids.find(x => x.id === edit) : null;
   v.innerHTML = `<div class="onboard">
     <div class="ob-top">${k ? `<button class="icon-btn" data-back aria-label="${t('close')}">←</button>` : '<span></span>'}${langSelect()}</div>
-    <div class="ob-logo">${logoSvg(96)}</div>
-    <h1 class="brand">${t('appName')}</h1>
+    <div class="ob-logo">${logoSvg(150)}</div>
+    <h1 class="ob-title">${brandHTML()}</h1>
     ${k ? '' : `<p class="lead">${t('welcomeText')}</p>`}
     <form class="card form" id="obf">
       <label>${t('kidName')}<input name="name" required maxlength="40" placeholder="${t('namePh')}" value="${esc(k?.name || '')}" autocomplete="off"></label>
@@ -173,7 +175,7 @@ async function viewHome(v) {
   const curDone = cur && S.items.some(i => i.kidId === k.id && i.milestoneKey === cur.key);
   const target = cur && !curDone && (Date.now() - cur.date) < 45 * DAY ? cur : next;
   v.innerHTML = `
-  <header class="topbar"><div class="brand-row">${logoSvg(34)}<span class="brand sm">${t('appName')}</span></div>
+  <header class="topbar"><div class="brand-row">${logoSvg(56)}${brandHTML('sm')}</div>
     ${S.kids.length > 1 ? `<button class="chip" data-switch>${esc(k.name)} ▾</button>` : ''}</header>
   <section class="hero">
     <div class="hero-txt"><div class="hero-name">${esc(k.name)}</div><div class="hero-age">${esc(ageText(k.birth))}</div></div>
@@ -445,6 +447,8 @@ async function viewStudio(v, arg = {}) {
   function worldThumb(id) { const d = newDoc('9:16'); applyWorld(d, id, null); const c = document.createElement('canvas'); c.width = 84; c.height = 150; const x = c.getContext('2d'); x.scale(84 / 1080, 150 / 1920); render(x, d); return c.toDataURL(); }
   function fxThumb(id) { const d = JSON.parse(JSON.stringify(doc)); d.effect = id; const c = document.createElement('canvas'); c.width = 72; c.height = Math.round(72 * d.h / d.w); const x = c.getContext('2d'); x.scale(72 / d.w, c.height / d.h); render(x, d); return c.toDataURL(); }
   const thumbs = {};
+  function fitTabs() { $$('.st-tab', v).forEach(b => { let f = 10; b.style.fontSize = ''; while (f > 7 && (b.scrollWidth > b.clientWidth + 1 || b.scrollHeight > b.clientHeight + 1)) { f -= 0.5; b.style.fontSize = f + 'px'; } }); }
+  requestAnimationFrame(fitTabs); document.fonts?.ready.then(fitTabs);
   function panel() {
     const p = $('#panel'); const l = ed.layer();
     $$('.st-tab', v).forEach(b => b.classList.toggle('on', !l && b.dataset.tab === tab));
@@ -486,7 +490,7 @@ async function viewStudio(v, arg = {}) {
         <div class="chips wrap"><button class="chip soft" data-quick="${esc(k.name)}">👶 ${esc(k.name)}</button><button class="chip soft" data-quick="${esc(fmtDate(date))}">📅 ${esc(fmtDate(date))}</button><button class="chip soft" data-quick="${esc(ageText(k.birth, date))}">⏳ ${esc(ageText(k.birth, date))}</button><button class="chip soft" data-quick="💗 ${t('appName')} 💗">💗 ${t('appName')}</button></div>`;
     } else if (tab === 'decor') {
       const grid = ids => `<div class="decor-grid">${ids.map(id => `<button class="dec" data-decor="${id}" aria-label="${id}"><img src="${thumbs['d' + id] ||= decorThumb(id)}" alt=""></button>`).join('')}</div>`;
-      h += `<button class="btn soft wide" data-act="blocks">🔤 ${t('blocksBtn', { name: k.name })}</button><div class="lbl">🐾 ${t('secAnimals')}</div>${grid(ANIMAL_IDS)}<div class="lbl">🎀 ${t('secDecor')}</div>${grid([...EXTRA_IDS, ...DECOR_IDS])}
+      h += `<button class="btn soft wide" data-act="blocks">🔤 ${t('blocksBtn', { name: k.name })}</button><div class="lbl">😜 ${t('secFun')}</div>${grid(FUN_IDS)}<div class="lbl">🐾 ${t('secAnimals')}</div>${grid(ANIMAL_IDS)}<div class="lbl">🎀 ${t('secDecor')}</div>${grid([...EXTRA_IDS, ...DECOR_IDS])}
         <div class="lbl">😊 ${t('secEmoji')}</div><div class="decor-grid">${EMOJI.map(e => `<button class="dec emo" data-emoji="${e}">${e}</button>`).join('')}</div>`;
     } else if (tab === 'worlds') {
       const ph1 = doc.layers.find(x => x.type === 'photo');
@@ -790,7 +794,7 @@ function viewMore(v) {
   </div>
   <div class="card"><h3>🔒 ${t('privacy')}</h3><p>${t('privacyText')}</p></div>
   ${isStandalone() ? '' : `<div class="card"><h3>📲 ${t('install')}</h3><p>${t('installIOS')}</p><p>${t('installAndroid')}</p>${S.installEvt ? `<button class="btn primary" data-install>${t('installBtn')}</button>` : ''}</div>`}
-  <div class="card center about">${logoSvg(56)}<b>${t('appName')}</b><p>${t('aboutText')}</p><small>v1.0</small></div>`;
+  <div class="card center about">${logoSvg(84)}${brandHTML('sm')}<p>${t('aboutText')}</p><small>v1.0</small></div>`;
   $$('[data-kid]', v).forEach(b => b.onclick = async () => { if (b.dataset.kid !== S.kidId) { S.kidId = b.dataset.kid; await db.setting('kidId', S.kidId); } go('onboard', { edit: b.dataset.kid }); });
   $('[data-addkid]', v).onclick = () => go('onboard');
   $('[data-ai]', v).onclick = () => aiSettings();
@@ -815,7 +819,7 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.inst
   setLang((await db.setting('lang')) || detectLang());
   document.title = t('appName');
   await load();
-  try { await Promise.all(['700 20px Comfortaa', '400 20px "Marck Script"', '400 20px Lobster', '400 20px Neucha', '700 20px "Amatic SC"'].map(f => document.fonts.load(f, 'Аa'))); } catch {}
+  try { await Promise.all(['700 20px Comfortaa', '400 20px "Marck Script"', '400 20px Lobster', '400 20px "Great Vibes"', '400 20px "Bad Script"', '400 20px Neucha', '700 20px "Amatic SC"'].map(f => document.fonts.load(f, 'Аa'))); } catch {}
   go(S.kids.length ? 'home' : 'onboard');
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
 })();

@@ -109,7 +109,7 @@ export const MOCKUPS = {
     ctx.fillStyle = vg(ctx, 0, 0, 0, mh * 0.3, [[0, 'rgba(255,255,255,.65)'], [1, 'rgba(255,255,255,0)']]); ctx.fillRect(0, 0, mw, mh * 0.3);
     ctx.fillStyle = vg(ctx, 0, mh * 0.6, 0, mh, [[0, 'rgba(94,67,67,0)'], [1, 'rgba(94,67,67,.55)']]); ctx.fillRect(0, mh * 0.6, mw, mh * 0.4);
     ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#E07F88';
-    const title = (o.t('appName') || '').toUpperCase(); let fs = mw * 0.16; ctx.font = `700 ${fs}px Lobster, Comfortaa, sans-serif`; const tw = ctx.measureText(title).width; if (tw > mw * 0.9) { fs *= mw * 0.9 / tw; ctx.font = `700 ${fs}px Lobster, Comfortaa, sans-serif`; }
+    const title = (o.t('appName') || '').toUpperCase(); let fs = mw * 0.16; ctx.font = `700 ${fs}px "Great Vibes", Lobster, Comfortaa, sans-serif`; const tw = ctx.measureText(title).width; if (tw > mw * 0.9) { fs *= mw * 0.9 / tw; ctx.font = `700 ${fs}px Lobster, Comfortaa, sans-serif`; }
     ctx.lineWidth = mw * 0.012; ctx.strokeStyle = '#fff'; ctx.strokeText(title, mw / 2, mh * 0.13); ctx.fillText(title, mw / 2, mh * 0.13);
     ctx.font = `700 ${mw * 0.03}px Comfortaa, sans-serif`; ctx.fillStyle = '#5E4343'; ctx.fillText(o.issue || '', mw / 2, mh * 0.17);
     ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `700 ${mw * 0.04}px Comfortaa, sans-serif`;

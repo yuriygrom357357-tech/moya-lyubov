@@ -112,7 +112,7 @@ en: {
   m_smile: 'First smile', m_tooth: 'First tooth', m_sat: 'Sat up', m_crawl: 'Started crawling', m_step: 'First step', m_word: 'First word', m_bath: 'First bath', m_walk: 'First walk outside', m_custom: 'Custom moment',
   title: 'Title', date: 'Date', note: 'Note', save: 'Save', cancel: 'Cancel', del: 'Delete', close: 'Close', makePhoto: 'Make a photo', edit: 'Edit',
   undo: 'Undo', redo: 'Redo', share: 'Share', download: 'Download',
-  tBg: 'Background', tPhoto: 'Photo', tMile: 'Milestone', tText: 'Text', tDecor: 'Decor', tFormat: 'Format',
+  tBg: 'Backdrop', tPhoto: 'Photo', tMile: 'Milestone', tText: 'Text', tDecor: 'Decor', tFormat: 'Format',
   sc_peach: 'Peach', sc_blush: 'Hearts', sc_clouds: 'Clouds', sc_night: 'Starry night', sc_sunflowers: 'Sunflowers', sc_vyshyvanka: 'Embroidery', sc_flowers: 'Flowers', sc_rainbow: 'Rainbow', sc_christmas: 'Christmas', sc_easter: 'Easter', sc_sea: 'Sea', sc_plain: 'Plain',
   propLabel: 'Base', pr_none: 'None', pr_blanket: 'Blanket', pr_basket: 'Basket', pr_cloud: 'Cloud', pr_moon: 'Moon', pr_heart: 'Heart',
   color: 'Color', addPhoto: 'Add baby photo', addParent: 'Add another photo (mom, dad)',

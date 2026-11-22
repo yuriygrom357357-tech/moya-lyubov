@@ -34,7 +34,22 @@ const MAT = {
   wood: { map: ramp(['#3E2412', '#77492A', '#B4804E', '#E6C394']), keep: 0.1, detail: 1.5, gloss: 0.25, rim: 0.2, rimCol: [255, 230, 190], grain: true },
   gingerbread: { map: ramp(['#552A10', '#93532A', '#C88446', '#EDB880']), keep: 0.12, detail: 1.5, gloss: 0.15, rim: 0, icing: true },
   candy: { sat: 1.15, con: 1.0, keep: 1, pastel: 0.2, gloss: 0.85, rim: 0.6, rimCol: [255, 255, 255], sparkle: true, alpha: 0.95 },
-  acrylic: { sat: 1.1, con: 1.04, keep: 1, gloss: 0.5, rim: 0, acrylic: true }
+  acrylic: { sat: 1.1, con: 1.04, keep: 1, gloss: 0.5, rim: 0, acrylic: true },
+  gummy: { sat: 1.45, con: 1.05, keep: 1, lift: 8, gloss: 1, rim: 0.55, rimCol: [255, 255, 255], alpha: 0.86, sparkle: true },
+  ice: { map: ramp(['#3E78B8', '#8CC4EC', '#D8F0FF', '#FFFFFF']), keep: 0.15, detail: 1.9, noise: 10, gloss: 1, rim: 0.7, rimCol: [235, 250, 255], alpha: 0.9, sparkle: true },
+  bubble: { sat: 1.15, con: 1.04, keep: 1, pastel: 0.08, iri: 0.26, gloss: 1, rim: 0.65, rimCol: [255, 255, 255], alpha: 0.88 },
+  holo: { sat: 1.1, con: 1.05, keep: 1, iri: 0.4, gloss: 0.9, rim: 0.5, rimCol: [230, 250, 255] },
+  pearl: { map: ramp(['#8F8A9E', '#D6D0DE', '#F3EFF4', '#FFFFFF']), keep: 0.3, detail: 2.2, iri: 0.1, gloss: 1, rim: 0.5, rimCol: [255, 255, 255] },
+  silver: { map: ramp(['#3A3C46', '#7E828F', '#C3C7D2', '#F2F4F8', '#FFFFFF']), keep: 0, detail: 1.6, gloss: 1, rim: 0.45, rimCol: [255, 255, 255] },
+  rosegold: { map: ramp(['#5A2E2A', '#9E5F55', '#DCA190', '#F6D3C6', '#FFF1EA']), keep: 0, detail: 1.6, gloss: 1, rim: 0.45, rimCol: [255, 235, 225] },
+  terracotta: { map: ramp(['#5A2A18', '#9A4E30', '#CF7F5A', '#EBB08F']), keep: 0.08, detail: 1.5, noise: 12, gloss: 0, rim: 0.15, rimCol: [255, 220, 200] },
+  snow: { map: ramp(['#7890B8', '#C9D8EC', '#F2F6FB', '#FFFFFF']), keep: 0.28, detail: 2.2, noise: 3, gloss: 0.4, rim: 0.4, rimCol: [255, 255, 255], sparkle: true },
+  cotton: { map: ramp(['#9E93AE', '#DAD3E3', '#F6F3F8', '#FFFFFF']), keep: 0.35, detail: 2.2, noise: 6, gloss: 0, rim: 0.3, rimCol: [255, 255, 255], fluffy: true },
+  amigurumi: { sat: 0.95, con: 0.97, keep: 1, lift: 8, knit: true, gloss: 0, rim: 0.2, rimCol: [255, 248, 240] },
+  felt: { sat: 0.85, con: 0.93, keep: 1, lift: 12, noise: 20, fabric: true, gloss: 0, rim: 0.15, rimCol: [255, 248, 240], stitch: true },
+  paper: { sat: 1.05, con: 1.0, keep: 1, post: 9, gloss: 0, rim: 0, paper: true },
+  sugarcookie: { sat: 1.0, con: 0.98, keep: 1, pastel: 0.28, noise: 6, gloss: 0.2, rim: 0, icing: true },
+  marzipan: { sat: 0.95, con: 0.96, keep: 1, pastel: 0.2, warm: [8, 4, 0], noise: 7, gloss: 0.1, rim: 0.2, rimCol: [255, 245, 235], prints: true }
 };
 
 export function material(src, kind) {
@@ -64,6 +79,9 @@ export function material(src, kind) {
     if (m.grain) { const g = Math.sin(x * 0.045 + Math.sin(y * 0.02) * 3.2) * 7 + Math.sin(x * 0.4) * 2; R += g; G += g * 0.8; B += g * 0.6; }
     if (m.veins) { const v = Math.abs(Math.sin((x * 0.6 + y) * 0.018 + Math.sin(x * 0.03) * 2.5 + Math.sin(y * 0.011) * 3)); if (v < 0.02) { const k = (0.02 - v) / 0.02 * 40; R -= k; G -= k; B -= k * 0.9; } }
     if (m.patina) { const p = Math.sin(x * 0.07) * Math.sin(y * 0.09) + Math.sin((x + y) * 0.031); if (p > 1.6) { R = R * 0.82 + 90 * 0.18; G = G * 0.82 + 150 * 0.18; B = B * 0.82 + 120 * 0.18; } }
+    if (m.iri) { const hsh = (x / W * 1.6 + y / H * 0.9 + L * 1.2) * Math.PI * 2; const ir = [Math.sin(hsh) * 0.5 + 0.5, Math.sin(hsh + 2.1) * 0.5 + 0.5, Math.sin(hsh + 4.2) * 0.5 + 0.5]; R = R * (1 - m.iri) + (170 + ir[0] * 85) * m.iri; G = G * (1 - m.iri) + (170 + ir[1] * 85) * m.iri; B = B * (1 - m.iri) + (190 + ir[2] * 65) * m.iri; }
+    if (m.knit) { const cw = Math.max(5, W / 90), u = (x % cw) / cw, v = (y % (cw * 0.8)) / (cw * 0.8), col = Math.floor(x / cw); const k = Math.abs(u - 0.5) * 2; const vv = (col % 2 ? v : 1 - v); const st = (1 - Math.abs(vv - k)) * 22 - 11; R += st; G += st; B += st; }
+    if (m.fluffy) { const n2 = (r0() - 0.5) * 10; R += n2; G += n2; B += n2; }
     // м'яка тінь знизу (об'єм) та глянець зі світлих ділянок розмитої версії
     const Lb = (blur[i] * 0.3 + blur[i + 1] * 0.59 + blur[i + 2] * 0.11) / 255;
     const vol = (y / H - 0.5) * -14; R += vol; G += vol; B += vol;
@@ -88,6 +106,9 @@ function outline(c, m) {
   if (m.acrylic) {
     o.drawImage(ring(p * 0.95, 'rgba(235,245,255,.55)'), 0, 0);
     o.drawImage(ring(p * 0.25, '#FFFFFF'), 0, 0);
+  } else if (m.paper) {
+    o.drawImage(ring(p * 0.9, 'rgba(120,90,80,.25)'), p * 0.25, p * 0.35);
+    o.drawImage(ring(p * 0.75, '#FFFFFF'), 0, 0);
   } else if (m.icing) {
     o.drawImage(ring(p * 0.6, '#8B4A1E'), 0, 0);
     const ic = ring(p * 0.45, '#FFFFFF'); const ix = ic.getContext('2d'); ix.globalCompositeOperation = 'destination-out'; ix.drawImage(ring(p * 0.18, '#000'), 0, 0);
@@ -152,7 +173,7 @@ export const FIGURES = {
     ctx.save(); ctx.shadowColor = 'rgba(120,60,70,.3)'; ctx.shadowBlur = W * 0.05; ctx.shadowOffsetY = W * 0.025; ctx.fillStyle = '#F29AAE'; rr(ctx, bx, by, bw, bh, W * 0.02); ctx.fill(); ctx.restore();
     ctx.fillStyle = '#F6B7C0'; ctx.fillRect(bx + bw * 0.92, by, bw * 0.08, bh);
     ctx.fillStyle = '#FFFFFF'; rr(ctx, bx + bw * 0.38, by - H * 0.035, bw * 0.24, H * 0.05, H * 0.025); ctx.fill(); ctx.fillStyle = '#F29AAE'; ctx.beginPath(); ctx.ellipse(bx + bw * 0.5, by - H * 0.012, bw * 0.06, H * 0.012, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; let f = bw * 0.1; ctx.font = `700 ${f}px Lobster, Comfortaa, sans-serif`; const title = o.t ? o.t('appName') : ''; const tw = ctx.measureText(title).width; if (tw > bw * 0.8) { f *= bw * 0.8 / tw; ctx.font = `700 ${f}px Lobster, Comfortaa, sans-serif`; } ctx.fillText(title, bx + bw * 0.46, by + bh * 0.08);
+    ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; let f = bw * 0.1; ctx.font = `700 ${f}px Lobster, Comfortaa, sans-serif`; const title = o.t ? o.t('appName') : ''; const tw = ctx.measureText(title).width; if (tw > bw * 0.8) { f *= bw * 0.8 / tw; ctx.font = `700 ${f}px "Great Vibes", Lobster, Comfortaa, sans-serif`; } ctx.fillText(title, bx + bw * 0.46, by + bh * 0.08);
     const wx = bx + bw * 0.08, wy = by + bh * 0.15, ww = bw * 0.76, wh = bh * 0.64;
     ctx.fillStyle = vg(ctx, 0, wy, 0, wy + wh, [[0, '#FFF6F8'], [1, '#FCE3EA']]); rr(ctx, wx, wy, ww, wh, W * 0.04); ctx.fill();
     const fig = getMat(o, 'vinyl'); place(ctx, fig, wx + ww / 2, wy + wh * 0.97, ww * 0.86, wh * 0.9, 'rgba(150,70,90,.3)');
@@ -163,4 +184,44 @@ export const FIGURES = {
     ctx.fillStyle = '#FFE9A8'; ctx.beginPath(); for (let k = 0; k < 10; k++) { const r2 = k % 2 ? bw * 0.03 : bw * 0.07, a = -Math.PI / 2 + k * Math.PI / 5; ctx.lineTo(bx + bw * 0.86 + Math.cos(a) * r2, by + bh * 0.16 + Math.sin(a) * r2); } ctx.fill(); ctx.fillStyle = '#C9626E'; ctx.font = `700 ${bw * 0.03}px Comfortaa, sans-serif`; ctx.fillText('№1', bx + bw * 0.86, by + bh * 0.163);
   }
 };
+
+// --- Ще 15 фігурок: різні матеріали й подачі ---
+function stand(ctx, W, H, o, kind, cfg) {
+  studio(ctx, W, H, cfg.bg[0], cfg.bg[1]);
+  const bx = W / 2, by = H * (cfg.by || 0.82);
+  const base = cfg.base;
+  if (base === 'pedestal') cylinder(ctx, bx, by, W * 0.3, H * 0.075, W * 0.065, vg(ctx, bx - W * 0.3, 0, bx + W * 0.3, 0, [[0, cfg.c1], [0.45, cfg.c2], [1, cfg.c1]]), cfg.c2, cfg.rim || null);
+  if (base === 'cake') { cylinder(ctx, bx, by, W * 0.36, H * 0.12, W * 0.08, vg(ctx, bx - W * 0.36, 0, bx + W * 0.36, 0, [[0, '#F6C9D3'], [0.5, '#FDE6EC'], [1, '#F0B8C6']]), '#FFFFFF', null); for (let k = 0; k < 14; k++) { const a = Math.PI * (k / 13); ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(bx - Math.cos(a) * W * 0.36, by + Math.sin(a) * W * 0.08, W * 0.03, 0, 7); ctx.fill(); } for (let k = 0; k < 8; k++) { ctx.fillStyle = ['#F29AA0', '#FFE3A3', '#C9E4F5'][k % 3]; ctx.beginPath(); ctx.arc(bx - W * 0.3 + k * W * 0.085, by + H * 0.07, W * 0.012, 0, 7); ctx.fill(); } }
+  if (base === 'nest') { ctx.fillStyle = 'rgba(120,80,50,.2)'; ctx.beginPath(); ctx.ellipse(bx, by + W * 0.06, W * 0.4, W * 0.06, 0, 0, 7); ctx.fill(); ctx.strokeStyle = '#C9A07D'; ctx.lineWidth = W * 0.012; const r = rnd(4); for (let k = 0; k < 40; k++) { ctx.beginPath(); const a = r() * Math.PI; ctx.ellipse(bx, by, W * (0.3 + r() * 0.06), W * (0.06 + r() * 0.03), 0, a, a + 1.4 + r()); ctx.stroke(); } }
+  if (base === 'gift') { ctx.fillStyle = 'rgba(120,60,70,.2)'; ctx.beginPath(); ctx.ellipse(bx, by + H * 0.13, W * 0.36, W * 0.05, 0, 0, 7); ctx.fill(); ctx.fillStyle = cfg.c1; ctx.fillRect(bx - W * 0.3, by, W * 0.6, H * 0.13); ctx.fillStyle = cfg.c2; ctx.fillRect(bx - W * 0.33, by - H * 0.02, W * 0.66, H * 0.04); ctx.fillStyle = '#FFE3A3'; ctx.fillRect(bx - W * 0.03, by - H * 0.02, W * 0.06, H * 0.15); }
+  if (base === 'snow') { ctx.fillStyle = '#FFFFFF'; for (const [dx, r] of [[-0.25, 0.14], [-0.08, 0.18], [0.12, 0.17], [0.28, 0.13]]) { ctx.beginPath(); ctx.arc(bx + W * dx, by + W * 0.08, W * r, Math.PI, 0); ctx.fill(); } ctx.fillRect(0, by + W * 0.08, W, H); }
+  if (base === 'cushion') { ctx.fillStyle = 'rgba(120,60,90,.2)'; ctx.beginPath(); ctx.ellipse(bx, by + W * 0.07, W * 0.42, W * 0.05, 0, 0, 7); ctx.fill(); ctx.fillStyle = cfg.c1; rr(ctx, bx - W * 0.38, by - W * 0.06, W * 0.76, W * 0.15, W * 0.075); ctx.fill(); ctx.fillStyle = cfg.c2; for (const sx of [-1, 1]) { ctx.beginPath(); ctx.arc(bx + sx * W * 0.38, by + W * 0.015, W * 0.03, 0, 7); ctx.fill(); } }
+  if (base === 'musicbox') { ctx.fillStyle = 'rgba(100,60,70,.25)'; ctx.beginPath(); ctx.ellipse(bx, by + H * 0.15, W * 0.42, W * 0.05, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#F6C9D3'; ctx.fillRect(bx - W * 0.36, by, W * 0.72, H * 0.14); ctx.fillStyle = '#F8D98A'; ctx.fillRect(bx - W * 0.36, by, W * 0.72, H * 0.012); ctx.fillRect(bx - W * 0.36, by + H * 0.128, W * 0.72, H * 0.012); ctx.fillStyle = '#FDE6EC'; ctx.beginPath(); ctx.moveTo(bx - W * 0.36, by); ctx.lineTo(bx - W * 0.3, by - H * 0.42); ctx.lineTo(bx + W * 0.3, by - H * 0.42); ctx.lineTo(bx + W * 0.36, by); ctx.closePath(); ctx.globalAlpha = 0.0; ctx.fill(); ctx.globalAlpha = 1; ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(bx, by, W * 0.2, W * 0.04, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#E2BE6E'; ctx.beginPath(); ctx.arc(bx + W * 0.38, by + H * 0.07, W * 0.025, 0, 7); ctx.fill(); ctx.fillStyle = '#C9626E'; ctx.font = `700 ${W * 0.05}px Comfortaa, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('♪ ♫ ♪', bx, by + H * 0.07); }
+  if (base === 'cloud') { ctx.fillStyle = '#FFFFFF'; for (const [dx, dy, r] of [[-0.25, 0.02, 0.12], [-0.08, -0.03, 0.15], [0.1, -0.02, 0.14], [0.27, 0.02, 0.11], [0, 0.04, 0.16]]) { ctx.beginPath(); ctx.arc(bx + W * dx, by + W * dy, W * r, 0, 7); ctx.fill(); } }
+  if (base === 'mirror') { ctx.fillStyle = vg(ctx, 0, by - W * 0.08, 0, by + W * 0.08, [[0, 'rgba(255,255,255,.95)'], [1, cfg.c1]]); ctx.beginPath(); ctx.ellipse(bx, by, W * 0.36, W * 0.08, 0, 0, 7); ctx.fill(); }
+  const fig = getMat(o, kind); const sz = place(ctx, fig, bx, by + W * (cfg.lift || 0.02), W * (cfg.fw || 0.62), H * 0.64, cfg.sh || 'rgba(100,60,80,.3)');
+  if (base === 'mirror') { ctx.save(); ctx.globalAlpha = 0.2; ctx.translate(bx, by); ctx.scale(1, -0.35); ctx.drawImage(fig, -sz.w / 2, -sz.h, sz.w, sz.h); ctx.restore(); }
+  if (base === 'musicbox') { ctx.save(); ctx.strokeStyle = 'rgba(226,190,110,.7)'; ctx.lineWidth = W * 0.006; ctx.setLineDash([W * 0.01, W * 0.015]); ctx.beginPath(); ctx.ellipse(bx, by - W * 0.02, W * 0.24, W * 0.05, 0, Math.PI * 0.1, Math.PI * 0.9, true); ctx.stroke(); ctx.restore(); }
+  if (cfg.spark) sparkles(ctx, W, H, cfg.spark, cfg.sparkCol || '#FFFFFF', 21);
+  plaque(ctx, bx, H * (cfg.py || 0.93), W * 0.34, H * 0.042, o.name, cfg.pl || ['#FFFFFF', '#F6E9EE'], cfg.pc || '#C9626E');
+}
+Object.assign(FIGURES, {
+  fig_gummy: (ctx, W, H, o) => stand(ctx, W, H, o, 'gummy', { bg: ['#FDEFF6', '#F6D4E6'], base: 'mirror', c1: 'rgba(246,183,210,.85)', spark: 8 }),
+  fig_ice: (ctx, W, H, o) => stand(ctx, W, H, o, 'ice', { bg: ['#E6F2FC', '#C2DAF0'], base: 'snow', spark: 18, sh: 'rgba(70,110,160,.3)', pl: ['#FFFFFF', '#E3F0FC'], pc: '#3E78B8' }),
+  fig_bubble: (ctx, W, H, o) => stand(ctx, W, H, o, 'bubble', { bg: ['#F1F4FD', '#E2E3F7'], base: 'mirror', c1: 'rgba(200,210,245,.85)', spark: 10 }),
+  fig_holo: (ctx, W, H, o) => stand(ctx, W, H, o, 'holo', { bg: ['#F5EEFC', '#E3D6F5'], base: 'pedestal', c1: '#D9C9F2', c2: '#F6F1FC', rim: '#C9E4F5', spark: 10, sparkCol: '#E8F8FF' }),
+  fig_pearl: (ctx, W, H, o) => stand(ctx, W, H, o, 'pearl', { bg: ['#F7F3F7', '#E9E1EA'], base: 'cushion', c1: '#F6D3DC', c2: '#FFFFFF', spark: 6, pl: ['#FFFFFF', '#F3EEF5'], pc: '#8F7A9A' }),
+  fig_silver: (ctx, W, H, o) => stand(ctx, W, H, o, 'silver', { bg: ['#EEF0F5', '#D5D9E3'], base: 'pedestal', c1: '#A8AEBC', c2: '#EEF0F5', rim: '#FFFFFF', spark: 8, pl: ['#F2F4F8', '#B5BAC6'], pc: '#3A3C46', sh: 'rgba(40,50,70,.35)' }),
+  fig_rosegold: (ctx, W, H, o) => stand(ctx, W, H, o, 'rosegold', { bg: ['#FBEEEA', '#EED4CC'], base: 'pedestal', c1: '#DCA190', c2: '#FBE6DE', rim: '#F6D3C6', spark: 8, sparkCol: '#FFE9DE', pl: ['#F6D3C6', '#C98877'], pc: '#5A2E2A' }),
+  fig_terracotta: (ctx, W, H, o) => stand(ctx, W, H, o, 'terracotta', { bg: ['#FBF0E6', '#EBD6C2'], base: 'pedestal', c1: '#C9825E', c2: '#E9B898', pl: ['#E9B898', '#B9704C'], pc: '#4A2010' }),
+  fig_snow: (ctx, W, H, o) => stand(ctx, W, H, o, 'snow', { bg: ['#E9F1FA', '#D3E1F0'], base: 'snow', spark: 22, sh: 'rgba(90,120,170,.25)', pl: ['#FFFFFF', '#E3EDF8'], pc: '#5A7BA8' }),
+  fig_cotton: (ctx, W, H, o) => stand(ctx, W, H, o, 'cotton', { bg: ['#EAF2FB', '#D7E6F5'], base: 'cloud', lift: -0.02, spark: 6, pl: ['#FFFFFF', '#EAF2FB'], pc: '#7FA8CC' }),
+  fig_amigurumi: (ctx, W, H, o) => stand(ctx, W, H, o, 'amigurumi', { bg: ['#FDF4EC', '#F2DFCF'], base: 'nest', lift: -0.02, pl: ['#FFFFFF', '#F6E9DD'], pc: '#B9704C' }),
+  fig_felt: (ctx, W, H, o) => stand(ctx, W, H, o, 'felt', { bg: ['#F3F7EE', '#DCE8D3'], base: 'cushion', c1: '#BFE3C8', c2: '#FFFFFF', lift: -0.02, pl: ['#FFFFFF', '#EAF4E5'], pc: '#5E9A6A' }),
+  fig_paper: (ctx, W, H, o) => stand(ctx, W, H, o, 'paper', { bg: ['#FFF9F0', '#F3E6D3'], base: 'gift', c1: '#C9E4F5', c2: '#B5DAF2', by: 0.8, pl: ['#FFFFFF', '#F6EEE2'], pc: '#7A6A5A' }),
+  fig_cookie2: (ctx, W, H, o) => stand(ctx, W, H, o, 'sugarcookie', { bg: ['#FFF3F6', '#F6DCE4'], base: 'gift', c1: '#F6B7C0', c2: '#F29AAE', by: 0.8, spark: 6, pl: ['#FFFFFF', '#FDEAF0'], pc: '#C9626E' }),
+  fig_cake: (ctx, W, H, o) => stand(ctx, W, H, o, 'marzipan', { bg: ['#FFF4EE', '#F6DED3'], base: 'cake', by: 0.74, lift: 0.0, fw: 0.5, spark: 8, py: 0.95, pl: ['#FFFFFF', '#FDE6EC'], pc: '#C9626E' }),
+  fig_musicbox: (ctx, W, H, o) => stand(ctx, W, H, o, 'porcelain', { bg: ['#FBF0F4', '#EFD9E2'], base: 'musicbox', by: 0.74, lift: 0.0, fw: 0.5, spark: 10, sparkCol: '#FFE9A8', py: 0.95, pl: ['#FFE9A8', '#E2BE6E'], pc: '#6E4E1E' })
+});
+
 export const FIGURE_IDS = Object.keys(FIGURES);
