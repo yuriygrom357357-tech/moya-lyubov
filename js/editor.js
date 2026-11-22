@@ -2,7 +2,7 @@
 import { SCENES, PROPS, DECOR, heartPath, PALETTE } from './scenes.js';
 import { unitText } from './i18n.js';
 import { db } from './db.js';
-import { drawSticker } from './stickers.js';
+import { drawSticker, drawBlock } from './stickers.js';
 import { applyEffect } from './effects.js';
 
 export const FORMATS = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '3:4': [1080, 1440] };
@@ -83,6 +83,7 @@ export function layerSize(l) {
     }
     case 'decor': return { w: 220, h: 220 };
     case 'emoji': return { w: 200, h: 200 };
+    case 'block': return { w: 180, h: 180 };
   }
   return { w: 100, h: 100 };
 }
@@ -242,6 +243,7 @@ export function drawLayer(ctx, l) {
   else if (l.type === 'text') drawText(ctx, l);
   else if (l.type === 'milestone') drawMilestone(ctx, l);
   else if (l.type === 'decor') { if (DECOR[l.name]) DECOR[l.name](ctx, 200, l.color); else if (drawSticker(ctx, l.name, 240) === false) DECOR.heart(ctx, 200); }
+  else if (l.type === 'block') { drawBlock(ctx, 230, l.ch, l.i || 0); }
   else if (l.type === 'emoji') { ctx.font = `180px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(l.ch, 0, 10); }
   ctx.restore();
 }

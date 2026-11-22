@@ -133,6 +133,57 @@ const FX = {
     }
   }
 };
+
+// --- Кольорові тонування (множники каналів + підйом + насиченість) ---
+function grade(ctx, W, H, [mr, mg, mb], [ar, ag, ab], sat = 1, con = 1) {
+  pixels(ctx, W, H, (d) => { for (let i = 0; i < d.length; i += 4) { let r = d[i], g = d[i + 1], b = d[i + 2]; const l = r * 0.3 + g * 0.59 + b * 0.11; r = l + (r - l) * sat; g = l + (g - l) * sat; b = l + (b - l) * sat; d[i] = ((r - 128) * con + 128) * mr + ar; d[i + 1] = ((g - 128) * con + 128) * mg + ag; d[i + 2] = ((b - 128) * con + 128) * mb + ab; } });
+}
+function overlayRain(ctx, W, H, seed, n, draw) { const r = rand(seed); for (let i = 0; i < n; i++) { ctx.save(); ctx.translate(r() * W, r() * H); ctx.rotate((r() - 0.5) * 1.2); const k = 0.5 + r(); ctx.globalAlpha = 0.65 + r() * 0.35; draw(ctx, k * W / 1080, i); ctx.restore(); } }
+function heart(ctx, s, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, s * 0.35); ctx.bezierCurveTo(-s * 0.95, -s * 0.25, -s * 0.5, -s * 0.95, 0, -s * 0.45); ctx.bezierCurveTo(s * 0.5, -s * 0.95, s * 0.95, -s * 0.25, 0, s * 0.35); ctx.fill(); }
+Object.assign(FX, {
+  golden(ctx, W, H) { grade(ctx, W, H, [1.08, 1.0, 0.86], [14, 6, -4], 1.1, 1.04); const g = ctx.createRadialGradient(W * 0.85, H * 0.1, 0, W * 0.85, H * 0.1, W); g.addColorStop(0, 'rgba(255,200,120,.45)'); g.addColorStop(1, 'rgba(255,200,120,0)'); ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); },
+  rosegold(ctx, W, H) { grade(ctx, W, H, [1.06, 0.95, 0.95], [16, 4, 8], 0.9, 1.02); ctx.save(); ctx.globalCompositeOperation = 'soft-light'; const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#F7C6C0'); g.addColorStop(1, '#E8B98A'); ctx.fillStyle = g; ctx.globalAlpha = 0.6; ctx.fillRect(0, 0, W, H); ctx.restore(); },
+  mint(ctx, W, H) { grade(ctx, W, H, [0.95, 1.04, 1.0], [6, 14, 10], 0.85, 0.98); },
+  lavender(ctx, W, H) { grade(ctx, W, H, [1.0, 0.95, 1.07], [10, 4, 18], 0.85, 0.98); },
+  sunset(ctx, W, H) { grade(ctx, W, H, [1.1, 0.96, 0.9], [10, 0, 10], 1.15, 1.05); ctx.save(); ctx.globalCompositeOperation = 'overlay'; const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#FF9E7A'); g.addColorStop(0.5, '#F6B7C0'); g.addColorStop(1, '#C9A8FF'); ctx.globalAlpha = 0.45; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); },
+  moonlight(ctx, W, H) { grade(ctx, W, H, [0.85, 0.92, 1.08], [0, 8, 22], 0.6, 1.05); vignette(ctx, W, H, 'rgba(20,30,70,A)', 0.55); const r = rand(31); for (let i = 0; i < 30; i++) sparkle4(ctx, r() * W, r() * H * 0.6, (4 + r() * 10) * W / 1080, '#E8F2FF'); },
+  warm(ctx, W, H) { grade(ctx, W, H, [1.06, 1.01, 0.92], [8, 4, 0], 1.05, 1.0); },
+  cool(ctx, W, H) { grade(ctx, W, H, [0.94, 1.0, 1.07], [0, 4, 10], 0.95, 1.0); },
+  fade(ctx, W, H) { grade(ctx, W, H, [0.85, 0.85, 0.85], [38, 34, 36], 0.75, 0.9); },
+  watercolor(ctx, W, H) {
+    const b = blurCopy(snapshot(ctx.canvas), 5); ctx.drawImage(b, 0, 0);
+    pixels(ctx, W, H, (d) => { for (let i = 0; i < d.length; i += 4) for (let k = 0; k < 3; k++) d[i + k] = Math.round(d[i + k] / 36) * 36 * 0.85 + 255 * 0.15; });
+    ctx.save(); ctx.globalCompositeOperation = 'multiply'; const r = rand(4); for (let i = 0; i < 2500; i++) { ctx.fillStyle = `rgba(200,180,170,${r() * 0.08})`; ctx.fillRect(r() * W, r() * H, 3, 3); } ctx.restore();
+  },
+  sketch(ctx, W, H) {
+    pixels(ctx, W, H, (d, w) => { const src = new Uint8ClampedArray(d); const L = i => src[i] * 0.3 + src[i + 1] * 0.59 + src[i + 2] * 0.11;
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < w - 1; x++) { const i = (y * w + x) * 4; const gx = L(i + 4) - L(i - 4), gy = L(i + w * 4) - L(i - w * 4); const e = Math.min(255, Math.sqrt(gx * gx + gy * gy) * 2.2); const v = 252 - e; d[i] = v; d[i + 1] = v - 2; d[i + 2] = v - 6; } });
+  },
+  comic(ctx, W, H) {
+    const src = snapshot(ctx.canvas); const sx = src.getContext('2d').getImageData(0, 0, W, H).data;
+    ctx.fillStyle = '#FFFDF6'; ctx.fillRect(0, 0, W, H); const step = Math.max(6, Math.round(W / 110));
+    for (let y = 0; y < H; y += step) for (let x = 0; x < W; x += step) { const i = (Math.min(H - 1, y + step / 2 | 0) * W + Math.min(W - 1, x + step / 2 | 0)) * 4; const l = (sx[i] * 0.3 + sx[i + 1] * 0.59 + sx[i + 2] * 0.11) / 255; ctx.fillStyle = `rgb(${sx[i]},${sx[i + 1]},${sx[i + 2]})`; ctx.beginPath(); ctx.arc(x + step / 2, y + step / 2, step * 0.62 * (1.05 - l * 0.6), 0, 7); ctx.fill(); }
+  },
+  popart(ctx, W, H) { pixels(ctx, W, H, (d) => { const pal = [[246, 183, 192], [255, 227, 163], [169, 205, 235], [94, 67, 67]]; for (let i = 0; i < d.length; i += 4) { const l = d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11; const c = l > 190 ? pal[1] : l > 130 ? pal[0] : l > 70 ? pal[2] : pal[3]; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; } }); },
+  pixel(ctx, W, H) { const k = Math.max(8, Math.round(W / 64)); const a = document.createElement('canvas'); a.width = Math.ceil(W / k); a.height = Math.ceil(H / k); const ax = a.getContext('2d'); ax.drawImage(ctx.canvas, 0, 0, a.width, a.height); ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(a, 0, 0, W, H); ctx.restore(); },
+  neon(ctx, W, H) {
+    pixels(ctx, W, H, (d, w) => { const src = new Uint8ClampedArray(d); const L = i => src[i] * 0.3 + src[i + 1] * 0.59 + src[i + 2] * 0.11;
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < w - 1; x++) { const i = (y * w + x) * 4; const e = Math.min(1, Math.hypot(L(i + 4) - L(i - 4), L(i + w * 4) - L(i - w * 4)) / 60); const t = x / w; d[i] = 20 + e * (255 * (1 - t) + 120 * t); d[i + 1] = 12 + e * (90 + 140 * t); d[i + 2] = 40 + e * 255; } });
+    const b = blurCopy(snapshot(ctx.canvas), 6); ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.drawImage(b, 0, 0); ctx.drawImage(b, 0, 0); ctx.restore();
+  },
+  hearts(ctx, W, H) { overlayRain(ctx, W, H, 41, 34, (c, k, i) => heart(c, (22 + (i % 4) * 9) * k, ['#F29AA0', '#F6B7C0', '#FFFFFF', '#FBD0D5'][i % 4])); },
+  snow(ctx, W, H) { ctx.save(); ctx.fillStyle = 'rgba(230,240,255,.12)'; ctx.fillRect(0, 0, W, H); ctx.restore(); const r = rand(51); for (let i = 0; i < 160; i++) { const x = r() * W, y = r() * H, rr = (2 + r() * 7) * W / 1080; ctx.fillStyle = `rgba(255,255,255,${0.6 + r() * 0.4})`; ctx.beginPath(); ctx.arc(x, y, rr, 0, 7); ctx.fill(); } },
+  confetti(ctx, W, H) { overlayRain(ctx, W, H, 61, 90, (c, k, i) => { c.fillStyle = ['#F6B7C0', '#FFE3A3', '#C9E4F5', '#CDEBD3', '#D9C9F2'][i % 5]; if (i % 3) c.fillRect(-14 * k, -5 * k, 28 * k, 10 * k); else { c.beginPath(); c.arc(0, 0, 8 * k, 0, 7); c.fill(); } }); },
+  lightleak(ctx, W, H) { ctx.save(); ctx.globalCompositeOperation = 'screen'; for (const [x, y, r, c] of [[0, 0.2, 0.9, '255,150,120'], [1, 0.75, 0.8, '255,210,140'], [0.6, 0, 0.5, '255,170,210']]) { const g = ctx.createRadialGradient(W * x, H * y, 0, W * x, H * y, W * r); g.addColorStop(0, `rgba(${c},.65)`); g.addColorStop(1, `rgba(${c},0)`); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); } ctx.restore(); },
+  polaroid(ctx, W, H) {
+    const src = snapshot(ctx.canvas); const m = W * 0.07, bottom = H * 0.16;
+    ctx.fillStyle = '#FBF8F3'; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.15)'; ctx.shadowBlur = 12; ctx.drawImage(src, 0, 0, W, H, m, m, W - m * 2, H - m - bottom); ctx.restore();
+    grade.call(null, ctx, W, H, [1.03, 1.0, 0.95], [6, 4, 0], 0.95, 1);
+  },
+  prism(ctx, W, H) { ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.5; const cols = ['#FF7AA8', '#FFC76B', '#FFF27A', '#7AF0B0', '#7AC8FF', '#B07AFF']; const bw = W * 0.06; cols.forEach((c, i) => { const g = ctx.createLinearGradient(0, 0, W, H); ctx.save(); ctx.translate(W * 0.15 + i * bw, 0); ctx.rotate(0.35); ctx.fillStyle = c; ctx.fillRect(0, -H * 0.2, bw, H * 1.5); ctx.restore(); }); ctx.restore(); }
+});
+
 export const EFFECT_IDS = ['none', ...Object.keys(FX)];
 
 export function applyEffect(ctx, name) {

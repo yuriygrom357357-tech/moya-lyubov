@@ -119,4 +119,4 @@ const dict = {};
 for (const l in V) { dict[l] = {}; K.forEach((k, i) => { if (V[l][i] !== undefined) dict[l][k] = V[l][i]; }); }
 for (const l in CUT) dict[l].cutTip = CUT[l];
 extend(dict);
-export const CAPTION_KEYS = Array.from({ length: 14 }, (_, i) => 'cap' + (i + 1));
+export const CAPTION_KEYS = Array.from({ length: 42 }, (_, i) => 'cap' + (i + 1));

@@ -47,6 +47,8 @@ export const AI_THEMES = {
   christmas: 'a cozy Christmas scene, the baby in a soft knitted festive outfit, warm bokeh fairy lights, pine branches, a small wrapped gift',
   fairy: 'a magical fairy-tale forest clearing with soft glowing light, moss, tiny mushrooms and butterflies, the baby resting on a velvet leaf',
   chef: 'the baby dressed as a tiny chef with a small white chef hat, sitting in a cozy pastel kitchen setting with wooden spoons and flour',
+  figurine: 'the baby transformed into an adorable glossy 3D collectible vinyl toy figurine (like a hand-painted plastic designer toy), big head, smooth rounded shapes, soft pastel paint, standing on a small round pastel pedestal, clean studio background with soft lighting — keep the face clearly recognizable',
+  clay: 'the baby recreated as a cute handmade clay / plasticine sculpture figurine with visible soft sculpting texture and fingerprints, pastel colors, sitting on a little clay cloud, soft studio light, stop-motion style — keep the face clearly recognizable',
   family: 'a tender, close family portrait: the parent from the second image gently holding and hugging the baby from the first image, soft warm studio light'
 };
 export const AI_THEME_IDS = Object.keys(AI_THEMES);

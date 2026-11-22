@@ -14,6 +14,31 @@ export const WORLDS = {
   balloon: { scene: 'balloons', prop: 'cloud', effect: 'none', font: 'tall', style: 'outline', color: '#E07F88', a: [['hotair', 0.8, 0.22, 1.1, 0], ['hotair', 0.2, 0.36, 0.7, -6], ['bird', 0.6, 0.12, 0.45, 0]] },
   holo: { scene: 'space', prop: 'none', effect: 'holoproj', font: 'display', style: 'glow', color: '#E9FBFF', a: [['stars', 0.18, 0.2, 0.7, 0], ['stars', 0.84, 0.28, 0.6, 20]] }
 };
+
+// --- Ще 20 світів ---
+Object.assign(WORLDS, {
+  polar: { scene: 'winter', prop: 'cloud', effect: 'snow', font: 'festive', style: 'outline', color: '#7FA8CC', a: [['penguin', 0.17, 0.78, 0.8, 0], ['seal', 0.84, 0.82, 0.8, 0], ['polarbear', 0.84, 0.3, 0.65, 6], ['snowflake', 0.15, 0.25, 0.5, 0]] },
+  safari: { scene: 'meadow', prop: 'blanket', effect: 'golden', font: 'kids', style: 'ribbon', color: '#FFFFFF', a: [['lion', 0.17, 0.77, 0.85, 0], ['giraffe', 0.84, 0.74, 0.95, 0], ['elephant', 0.82, 0.35, 0.6, 0], ['sun', 0.16, 0.25, 0.7, 0]] },
+  farm: { scene: 'meadow', prop: 'basket', effect: 'warm', font: 'kids', style: 'plate', color: '#6B4E4E', a: [['cow', 0.16, 0.78, 0.8, 0], ['piglet', 0.85, 0.8, 0.75, 0], ['lamb', 0.84, 0.36, 0.6, 0], ['chick', 0.17, 0.38, 0.55, 0], ['duckling', 0.5, 0.92, 0.45, 0]] },
+  jungle: { scene: 'forest', prop: 'none', effect: 'none', font: 'festive', style: 'outline', color: '#5E9A6A', a: [['monkey', 0.16, 0.36, 0.8, -8], ['tiger', 0.84, 0.78, 0.85, 0], ['sloth', 0.84, 0.3, 0.6, 8], ['butterfly', 0.15, 0.75, 0.55, 0], ['frog', 0.5, 0.92, 0.45, 0]] },
+  reef: { scene: 'underwater', prop: 'none', effect: 'none', font: 'festive', style: 'outline', color: '#5B9FC4', a: [['octopus', 0.17, 0.78, 0.8, 0], ['turtle', 0.82, 0.8, 0.85, 0], ['fish', 0.18, 0.32, 0.6, 0], ['whale', 0.78, 0.25, 0.8, 0]] },
+  dino: { scene: 'meadow', prop: 'none', effect: 'none', font: 'kids', style: 'ribbon', color: '#FFFFFF', a: [['dino', 0.17, 0.77, 1.0, 0], ['dino', 0.86, 0.8, 0.7, 0], ['sun', 0.82, 0.18, 0.6, 0], ['rainbow', 0.25, 0.25, 1.0, 0]] },
+  circus: { scene: 'p_stripes_pink', prop: 'heart', effect: 'confetti', font: 'festive', style: 'glow', color: '#E07F88', a: [['elephant', 0.17, 0.78, 0.8, 0], ['seal', 0.84, 0.82, 0.75, 0], ['balloons', 0.84, 0.32, 0.9, 6], ['crown', 0.16, 0.3, 0.5, -10]] },
+  birthday: { scene: 'p_confetti_butter', prop: 'blanket', effect: 'none', font: 'festive', style: 'ribbon', color: '#FFFFFF', a: [['cupcake', 0.16, 0.8, 0.7, 0], ['gift', 0.85, 0.82, 0.7, 0], ['balloons', 0.84, 0.3, 1.0, 6], ['balloons', 0.16, 0.32, 0.8, -6]] },
+  princess: { scene: 'castle', prop: 'cloud', effect: 'sparkle', font: 'festive', style: 'glow', color: '#E07F88', a: [['crown_pink', 0.5, 0.42, 0.55, 0], ['unicorn_pink', 0.16, 0.79, 0.8, 0], ['pearl', 0.5, 0.2, 1.1, 0], ['rainbow_heart', 0.85, 0.35, 0.6, 0]] },
+  garden: { scene: 'flowers', prop: 'blanket', effect: 'none', font: 'script', style: 'plate', color: '#6B4E4E', a: [['butterfly', 0.18, 0.3, 0.6, -12], ['bee', 0.84, 0.36, 0.55, 8], ['hedgehog', 0.16, 0.8, 0.75, 0], ['tulip', 0.88, 0.8, 0.6, 0], ['daisy', 0.1, 0.55, 0.45, 0]] },
+  autumnwood: { scene: 'autumn', prop: 'basket', effect: 'golden', font: 'kids', style: 'ribbon', color: '#FFFFFF', a: [['squirrel', 0.16, 0.78, 0.8, 0], ['hedgehog', 0.85, 0.82, 0.7, 0], ['fox', 0.84, 0.36, 0.6, 0], ['leaf', 0.18, 0.3, 0.5, 0], ['mushroom', 0.5, 0.93, 0.4, 0]] },
+  nightwood: { scene: 'night', prop: 'moon', effect: 'moonlight', font: 'festive', style: 'glow', color: '#FFFFFF', a: [['owl', 0.17, 0.33, 0.7, -6], ['raccoon', 0.84, 0.8, 0.75, 0], ['moonstar', 0.84, 0.3, 0.6, 0], ['stars', 0.15, 0.75, 0.6, 0]] },
+  sweetdreams: { scene: 'night', prop: 'cloud', effect: 'dream', font: 'script', style: 'glow', color: '#FFFFFF', a: [['crib_mobile', 0.5, 0.2, 1.1, 0], ['bear_blue', 0.16, 0.8, 0.7, 0], ['moonstar', 0.84, 0.36, 0.6, 0]] },
+  easterland: { scene: 'easter', prop: 'basket', effect: 'none', font: 'kids', style: 'plate', color: '#6B4E4E', a: [['bunny', 0.16, 0.78, 0.8, 0], ['hatchling', 0.85, 0.82, 0.65, 0], ['chick', 0.82, 0.36, 0.55, 0], ['tulip', 0.15, 0.36, 0.5, 0]] },
+  newyear: { scene: 'christmas', prop: 'blanket', effect: 'snow', font: 'festive', style: 'outline', color: '#E07F88', a: [['polarbear', 0.16, 0.78, 0.8, 0], ['gift', 0.85, 0.82, 0.7, 0], ['snowflake', 0.84, 0.3, 0.55, 0], ['stars', 0.16, 0.3, 0.6, 0]] },
+  sunflower: { scene: 'sunflowers', prop: 'blanket', effect: 'golden', font: 'kids', style: 'ribbon', color: '#FFFFFF', a: [['bee', 0.82, 0.34, 0.55, 8], ['butterfly', 0.18, 0.36, 0.55, -10], ['chick', 0.16, 0.8, 0.6, 0], ['lamb', 0.86, 0.8, 0.65, 0]] },
+  koalatree: { scene: 'forest', prop: 'blanket', effect: 'mint', font: 'kids', style: 'outline', color: '#5E9A6A', a: [['koala', 0.17, 0.75, 0.85, 0], ['panda', 0.84, 0.77, 0.8, 0], ['panda_red', 0.83, 0.33, 0.6, 6], ['leaf', 0.16, 0.3, 0.5, 0]] },
+  rainyday: { scene: 'p_dots_sky', prop: 'cloud', effect: 'none', font: 'festive', style: 'outline', color: '#5B9FC4', a: [['umbrella', 0.5, 0.3, 1.2, 0], ['duck_toy', 0.16, 0.82, 0.65, 0], ['frog', 0.85, 0.82, 0.65, 0], ['rainbow', 0.17, 0.25, 0.8, 0]] },
+  space2: { scene: 'space', prop: 'cloud', effect: 'neon', font: 'display', style: 'glow', color: '#FFFFFF', a: [['rocket', 0.2, 0.3, 1.0, -10], ['planet', 0.82, 0.25, 0.9, 0], ['stars', 0.84, 0.72, 0.7, 0]] },
+  holoheart: { scene: 'p_hearts_pink', prop: 'heart', effect: 'hologram', font: 'festive', style: 'glow', color: '#FFFFFF', a: [['rainbow_heart', 0.17, 0.25, 0.6, 0], ['hearts', 0.84, 0.3, 0.7, 0], ['sparkle', 0.15, 0.72, 0.5, 0]] }
+});
+
 export const WORLD_IDS = Object.keys(WORLDS);
 
 export function applyWorld(doc, id, caption) {

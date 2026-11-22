@@ -7,6 +7,9 @@ import { CAPTION_KEYS } from './i18n2.js';
 import { ANIMAL_IDS, EXTRA_IDS, drawSticker } from './stickers.js';
 import { EFFECT_IDS } from './effects.js';
 import { WORLDS, WORLD_IDS, applyWorld, buildTalePages } from './worlds.js';
+import './i18n3.js';
+import { MOCKUP_IDS, renderMockup, toyify } from './mockups.js';
+import { PATTERNS, PALETTES } from './scenes.js';
 import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt, puterPhotoshoot, loadPuter } from './services.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -16,6 +19,7 @@ const DAY = 864e5;
 const sod = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 const iso = d => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
 const SWATCHES = ['#E58F95', '#F2B8B5', '#F9D9D6', '#FBD9C3', '#F8D98A', '#FFF0C2', '#D9E8D2', '#DCEBF5', '#E8DDF2', '#FFFFFF', '#6B4E4E', '#8C5A5A'];
+function sceneName(id) { const sc = SCENES[id]; if (sc?.pattern) return `${t('pat_' + sc.pattern[0])} · ${t('pal_' + sc.pattern[1])}`; return t('sc_' + id); }
 const FONT_CSS = { display: 'Comfortaa', script: "'Marck Script'", festive: 'Lobster', kids: 'Neucha', tall: "'Amatic SC'" };
 const MOMENTS = ['smile', 'tooth', 'sat', 'crawl', 'step', 'word', 'bath', 'walk'];
 const MOMENT_ICON = { smile: '😊', tooth: '🦷', sat: '🧸', crawl: '🐢', step: '👣', word: '💬', bath: '🛁', walk: '🌳', custom: '💗' };
@@ -310,6 +314,7 @@ async function viewer(id) {
     <div class="v-actions">
       <button class="btn primary" data-a="share">📤 ${t('share')}</button>
       <button class="btn soft" data-a="dl">⬇️ ${t('download')}</button>
+      <button class="btn soft" data-a="where">🖼️ ${t('whereTitle')}</button>
       <button class="btn soft" data-a="edit">✏️ ${t('edit')}</button>
       <button class="btn ghost danger-text" data-a="del">🗑️ ${t('del')}</button>
     </div></div>`, {
@@ -321,6 +326,7 @@ async function viewer(id) {
         if (a === 'share') shareOrDownload(blob, fileName(it.label));
         if (a === 'dl') download(blob, fileName(it.label));
         if (a === 'edit') { close(); go('studio', { item: it }); }
+        if (a === 'where') { close(); const ph = it.doc?.layers?.find(x => x.type === 'photo' && x.cut && x.cutKey); let cut = null; if (ph) { const cb = await db.getBlob(ph.cutKey); if (cb) cut = await blobToImage(cb); } openMockups({ img: await blobToImage(blob), cut, label: it.label }); }
         if (a === 'del' && await confirmBox(t('delConfirm'))) { await db.del('items', it.id); await db.del('blobs', it.fullKey); await db.del('blobs', it.thumbKey); await load(); close(); go(S.view); }
       });
     }
@@ -352,7 +358,7 @@ async function viewStudio(v, arg = {}) {
     <header class="st-top">
       <button class="icon-btn" data-x aria-label="${t('close')}">←</button>
       <div class="st-hist"><button class="icon-btn" data-undo aria-label="${t('undo')}" title="${t('undo')}">↶</button><button class="icon-btn" data-redo aria-label="${t('redo')}" title="${t('redo')}">↷</button></div>
-      <button class="btn primary sm" data-save>💾 ${t('save')}</button>
+      <div class="row gap"><button class="icon-btn" data-where aria-label="${t('whereTitle')}" title="${t('whereTitle')}">🖼️</button><button class="btn primary sm" data-save>💾 ${t('save')}</button></div>
     </header>
     <div class="st-stage"><canvas id="cv"></canvas><div class="st-empty" hidden><button class="btn primary" data-addphoto>📷 ${t('addPhoto')}</button></div><div class="st-busy" hidden><div class="spinner"></div><p></p></div></div>
     <div class="st-panel" id="panel"></div>
@@ -371,6 +377,11 @@ async function viewStudio(v, arg = {}) {
   $('[data-redo]', v).onclick = () => ed.redo();
   $('[data-addphoto]', v).onclick = () => addPhoto();
   $$('[data-tab]', v).forEach(b => b.onclick = () => { tab = b.dataset.tab; ed.select(null); });
+  $('[data-where]', v).onclick = async () => {
+    ed.select(null); busy('…');
+    const img = await blobToImage(await exportBlob(doc, { scale: 0.6 })); const ph = doc.layers.find(x => x.type === 'photo' && x.cut && x.cutKey);
+    busy(null); openMockups({ img, cut: ph ? imgCache.get(ph.cutKey) : null, label });
+  };
   $('[data-save]', v).onclick = async () => {
     ed.select(null); busy('…');
     const full = await exportBlob(doc); const thumb = (await downscale(full, 420, 'image/jpeg', 0.82)).blob;
@@ -380,8 +391,8 @@ async function viewStudio(v, arg = {}) {
     rec.fullKey = await db.putBlob(full); rec.thumbKey = await db.putBlob(thumb);
     await db.put('items', rec); item = rec; await load(); busy(null); savedAt = ed.hi;
     toast('💗 ' + t('saved'));
-    sheet(`<h3>${t('saved')}</h3><img class="saved-prev" src="${URL.createObjectURL(full)}" alt=""><div class="row gap"><button class="btn primary" data-a="share">📤 ${t('share')}</button><button class="btn soft" data-a="dl">⬇️ ${t('download')}</button></div><button class="btn ghost wide" data-a="album">🖼️ ${t('album')}</button>`, {
-      onMount: (el, close) => el.addEventListener('click', e => { const a = e.target.closest('[data-a]')?.dataset.a; if (a === 'share') shareOrDownload(full, fileName(label)); if (a === 'dl') download(full, fileName(label)); if (a === 'album') { close(); go('album'); } })
+    sheet(`<h3>${t('saved')}</h3><img class="saved-prev" src="${URL.createObjectURL(full)}" alt=""><div class="row gap"><button class="btn primary" data-a="share">📤 ${t('share')}</button><button class="btn soft" data-a="dl">⬇️ ${t('download')}</button></div><button class="btn soft wide where-btn" data-a="where">🖼️ ${t('whereBtn')}</button><button class="btn ghost wide" data-a="album">🖼️ ${t('album')}</button>`, {
+      onMount: (el, close) => el.addEventListener('click', async e => { const a = e.target.closest('[data-a]')?.dataset.a; if (a === 'share') shareOrDownload(full, fileName(label)); if (a === 'dl') download(full, fileName(label)); if (a === 'album') { close(); go('album'); } if (a === 'where') { close(); const ph = doc.layers.find(x => x.type === 'photo' && x.cut && x.cutKey); openMockups({ img: await blobToImage(full), cut: ph ? imgCache.get(ph.cutKey) : null, label }); } })
     });
   };
 
@@ -453,8 +464,10 @@ async function viewStudio(v, arg = {}) {
       if (l.type === 'decor') h += sw(l.color);
       h += common(l);
     } else if (tab === 'bg') {
-      h += `<div class="lbl">${t('tBg')}</div><div class="scenes scroll-x">${SCENE_IDS.map(id => `<button class="scene ${doc.scene === id ? 'on' : ''}" data-scene="${id}"><img src="${thumbs['s' + id] ||= sceneThumb(id)}" alt=""><span>${t('sc_' + id)}</span></button>`).join('')}</div>
-        <div class="lbl">${t('color')}</div>${sw(doc.sceneColor || SCENES[doc.scene].color, 'data-scolor')}
+      const sceneTile = id => `<button class="scene ${doc.scene === id ? 'on' : ''}" data-scene="${id}"><img src="${thumbs['s' + id] ||= sceneThumb(id)}" alt=""><span>${sceneName(id)}</span></button>`;
+      h += `<div class="lbl">${t('tBg')}</div><div class="scenes scroll-x">${SCENE_IDS.filter(id => !id.startsWith('p_')).map(sceneTile).join('')}</div>
+        <div class="lbl">${t('patternsLbl')}</div><div class="scenes scroll-x">${SCENE_IDS.filter(id => id.startsWith('p_')).map(sceneTile).join('')}</div>`;
+      h += `<div class="lbl">${t('color')}</div>${sw(doc.sceneColor || SCENES[doc.scene].color, 'data-scolor')}
         <div class="lbl">${t('propLabel')}</div><div class="chips wrap">${PROP_IDS.map(id => `<button class="chip ${doc.prop === id ? 'on' : ''}" data-prop="${id}">${t('pr_' + id)}</button>`).join('')}</div>
         <div class="lbl">${t('tFormat')}</div><div class="fmts">${Object.keys(FORMATS).map(f => { const [w, hh] = FORMATS[f]; return `<button class="fmt ${doc.fmt === f ? 'on' : ''}" data-fmt="${f}"><i style="aspect-ratio:${w}/${hh}"></i><span>${t('f' + f.replace(':', ''))}</span></button>`; }).join('')}</div>`;
     } else if (tab === 'photo') {
@@ -473,7 +486,7 @@ async function viewStudio(v, arg = {}) {
         <div class="chips wrap"><button class="chip soft" data-quick="${esc(k.name)}">👶 ${esc(k.name)}</button><button class="chip soft" data-quick="${esc(fmtDate(date))}">📅 ${esc(fmtDate(date))}</button><button class="chip soft" data-quick="${esc(ageText(k.birth, date))}">⏳ ${esc(ageText(k.birth, date))}</button><button class="chip soft" data-quick="💗 ${t('appName')} 💗">💗 ${t('appName')}</button></div>`;
     } else if (tab === 'decor') {
       const grid = ids => `<div class="decor-grid">${ids.map(id => `<button class="dec" data-decor="${id}" aria-label="${id}"><img src="${thumbs['d' + id] ||= decorThumb(id)}" alt=""></button>`).join('')}</div>`;
-      h += `<div class="lbl">🐾 ${t('secAnimals')}</div>${grid(ANIMAL_IDS)}<div class="lbl">🎀 ${t('secDecor')}</div>${grid([...EXTRA_IDS, ...DECOR_IDS])}
+      h += `<button class="btn soft wide" data-act="blocks">🔤 ${t('blocksBtn', { name: k.name })}</button><div class="lbl">🐾 ${t('secAnimals')}</div>${grid(ANIMAL_IDS)}<div class="lbl">🎀 ${t('secDecor')}</div>${grid([...EXTRA_IDS, ...DECOR_IDS])}
         <div class="lbl">😊 ${t('secEmoji')}</div><div class="decor-grid">${EMOJI.map(e => `<button class="dec emo" data-emoji="${e}">${e}</button>`).join('')}</div>`;
     } else if (tab === 'worlds') {
       const ph1 = doc.layers.find(x => x.type === 'photo');
@@ -541,6 +554,12 @@ async function viewStudio(v, arg = {}) {
       case 'cut': return cutBg(l);
       case 'addtext': { const inp = P.querySelector('[data-newtext]'); if (!inp.value.trim()) return inp.focus(); return ed.add(fitWidth(Object.assign(makeTextLayer(doc, inp.value.trim(), 'festive'), { style: 'outline', color: PALETTE.roseDeep, colorSet: true }), doc, 0.9)); }
       case 'tale': return makeTale();
+      case 'blocks': {
+        const chars = [...k.name.replace(/\s+/g, '')].slice(0, 10); const n = chars.length; if (!n) return;
+        const sz = Math.min(200, (doc.w * 0.9) / n) / 220, gap = 220 * sz * 1.02, x0 = doc.w / 2 - (n - 1) * gap / 2;
+        chars.forEach((ch, i) => doc.layers.push({ id: 'b' + Math.random().toString(36).slice(2, 8), type: 'block', ch: ch.toLocaleUpperCase(getLang()), i, x: x0 + i * gap, y: doc.h * 0.8 + (i % 2 ? -12 : 12), s: sz, r: (i % 2 ? 0.06 : -0.06), o: 1 }));
+        ed.draw(); ed.commit(); return toast('🔤 ' + k.name);
+      }
       case 'addmile': { const ml = makeMilestoneLayer(doc, newMile.num, newMile.unit, getLang(), newMile.style); ml.y += doc.layers.filter(x => x.type === 'milestone').length * doc.h * 0.12; ed.add(ml); label = label || ut(newMile.num, newMile.unit); return; }
       case 'dup': return ed.duplicate();
       case 'up': return ed.order(1);
@@ -559,6 +578,45 @@ async function addPhotoToDoc(doc, file, extra = {}) {
   if (!extra.s) { const maxH = doc.h * 0.55; if (l.h0 > maxH) l.s = maxH / l.h0; }
   else if (extra.s !== 1) l.s = extra.s;
   return l;
+}
+
+// ---------- «Де фото»: мокапи ----------
+function mockOpts(src) {
+  const k = kid(); const now = new Date();
+  return { img: src.img, toy: src.toy || null, name: k?.name || '', t, issue: `№ ${now.getMonth() + 1} · ${fmtDate(now, { month: 'long', year: 'numeric' })}`, date: fmtDate(now, { weekday: 'long', day: 'numeric', month: 'long' }), year: String(now.getFullYear()), tale: t('taleTitle', { name: k?.name || '' }) };
+}
+function openMockups(src) {
+  if (src.cut && !src.toy) { try { src.toy = toyify(src.cut); } catch (e) { console.warn(e); } }
+  const o = mockOpts(src);
+  const close = sheet(`<h3>🖼️ ${t('whereTitle')}</h3><p class="hint">${t('whereHint')}</p>
+    ${src.toy ? '' : `<p class="hint">🗿 ${t('statueTip')}</p>`}
+    <div class="mock-grid">${MOCKUP_IDS.map(id => `<button class="mock" data-mk="${id}"><canvas width="216" height="270"></canvas><span>${t('mk_' + id)}</span></button>`).join('')}</div>`, {
+    cls: 'tall', onMount: (el) => {
+      const tiles = $$('[data-mk]', el); let i = 0;
+      const step = () => { if (i >= tiles.length) return; const b = tiles[i++]; try { b.querySelector('canvas').getContext('2d').drawImage(renderMockup(b.dataset.mk, 216, 270, o), 0, 0); } catch (e) { console.warn(e); } requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+      el.addEventListener('click', e => { const b = e.target.closest('[data-mk]'); if (b) showMockup(b.dataset.mk, src, o); });
+    }
+  });
+}
+async function showMockup(id, src, o) {
+  const c = renderMockup(id, 1080, 1350, o);
+  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92)); const url = URL.createObjectURL(blob); const label = t('mk_' + id);
+  sheet(`<h3>🖼️ ${label}</h3><img class="saved-prev" src="${url}" alt="">
+    <div class="v-actions"><button class="btn primary" data-a="share">📤 ${t('share')}</button><button class="btn soft" data-a="dl">⬇️ ${t('download')}</button><button class="btn soft" data-a="album">💗 ${t('toAlbum')}</button></div>`, {
+    cls: 'tall', onMount: (el) => el.addEventListener('click', async e => {
+      const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'share') shareOrDownload(blob, fileName(label));
+      if (a === 'dl') download(blob, fileName(label));
+      if (a === 'album') {
+        const btn = e.target.closest('[data-a]'); if (btn.disabled) return; btn.disabled = true;
+        const doc = newDoc('4:5'); const l = await addPhotoToDoc(doc, blob, { frame: 'none', shadow: false, s: 1 }); l.s = Math.max(doc.w / l.w0, doc.h / l.h0); l.x = doc.w / 2; l.y = doc.h / 2; doc.prop = 'none'; doc.layers.push(l);
+        const th = (await downscale(blob, 420)).blob;
+        await db.put('items', { id: uid(), kidId: S.kidId, created: Date.now(), date: iso(new Date()), label, doc, fullKey: await db.putBlob(blob), thumbKey: await db.putBlob(th) });
+        await load(); btn.innerHTML = '✓ ' + t('saved'); toast('💗 ' + t('saved'));
+      }
+    })
+  });
 }
 
 // ---------- ШІ-фотосесія ----------
