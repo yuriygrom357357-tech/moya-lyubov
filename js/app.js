@@ -10,6 +10,9 @@ import { WORLDS, WORLD_IDS, applyWorld, buildTalePages } from './worlds.js';
 import './i18n3.js';
 import { MOCKUP_IDS, renderMockup } from './mockups.js';
 import { PATTERNS, PALETTES } from './scenes.js';
+import './i18n4.js';
+import { loadLicense, isPro, license, activate, deactivate, shopFor, SHOP, FREE } from './license.js';
+import { setWatermark } from './editor.js';
 import { downscale, removeBackground, aiPhotoshoot, AI_THEME_IDS, buildPrompt, puterPhotoshoot, loadPuter } from './services.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -103,6 +106,41 @@ async function hydrateImgs(root) { await Promise.all($$('img[data-key]', root).m
 const fileName = (label = 'photo', ext = 'jpg') => `moya-lyubov-${String(label).replace(/[^\p{L}\p{N}]+/gu, '-').slice(0, 30)}-${iso(new Date())}.${ext}`;
 
 // ---------- Дані ----------
+// ---------- Повна версія: що безкоштовне ----------
+let FREE_SET = null;
+function freeSet() {
+  if (FREE_SET) return FREE_SET;
+  const ill = SCENE_IDS.filter(id => !id.startsWith('p_')).slice(0, FREE.scenes);
+  const pats = SCENE_IDS.filter(id => id.startsWith('p_') && FREE.patterns.includes(id.split('_')[1]));
+  const figs = MOCKUP_IDS.filter(id => id.startsWith('fig_')).slice(0, FREE.figs), places = MOCKUP_IDS.filter(id => !id.startsWith('fig_')).slice(0, FREE.places);
+  const P = (c, arr) => arr.map(x => c + ':' + x);
+  FREE_SET = new Set([...P('w', WORLD_IDS.slice(0, FREE.worlds)), ...P('s', [...ill, ...pats]), ...P('d', [...FUN_IDS.slice(0, FREE.fun), ...ANIMAL_IDS.slice(0, FREE.animals), ...EXTRA_IDS.slice(0, FREE.extras), ...DECOR_IDS]), ...P('f', EFFECT_IDS.slice(0, FREE.fx)), ...P('m', [...figs, ...places])]);
+  return FREE_SET;
+}
+// c: w — світ, s — фон, d — прикраса, f — ефект, m — «Де фото»
+const locked = (c, id) => !isPro() && !freeSet().has(c + ':' + id);
+const lockI = (c, id) => locked(c, id) ? '<i class="lock" aria-hidden="true">🔒</i>' : '';
+function paywall(reason) {
+  const shop = shopFor(getLang());
+  const lic = license();
+  if (lic) return sheet(`<h3>${t('proActive')}</h3><p>${t('proOwner', { name: esc(lic.name || lic.id) })}</p><p class="hint">№ ${esc(lic.id)}</p>
+    <button class="btn ghost wide" data-a="off">${t('proReset')}</button>`, { onMount: (el, close) => el.querySelector('[data-a=off]').onclick = async () => { if (await confirmBox(t('proReset') + '?')) { await deactivate(); setWatermark(true); close(); go(S.view === 'studio' ? 'home' : S.view); } } });
+  const buyHref = shop.url || `mailto:${SHOP.contact}?subject=${encodeURIComponent(t('proMailSubj'))}&body=${encodeURIComponent(t('proMailBody'))}`;
+  return sheet(`<div class="pw">
+    ${reason ? `<p class="pw-reason">${t('proLocked')}</p>` : ''}
+    <h3 class="pw-h">⭐ ${t('proTitle')}</h3><p class="pw-sub">${t('proForever')}</p>
+    <ul class="pw-list">${['proB1', 'proB2', 'proB3', 'proB4', 'proB5'].map(k => `<li>💗 ${t(k)}</li>`).join('')}</ul>
+    <a class="btn primary wide pw-buy" href="${buyHref}" target="_blank" rel="noopener" data-buy>${t('proBuy', { price: shop.price })}</a>
+    <details class="pw-how"><summary>📖 ${t('proHow')}</summary><ol>${['proS1', 'proS2', 'proS3', 'proS4'].map(k => `<li>${t(k)}</li>`).join('')}</ol></details>
+    <button class="btn soft wide" data-a="key">${t('proHaveKey')}</button>
+    <form class="pw-key" hidden><textarea class="txt" name="k" rows="3" placeholder="${t('proKeyPh')}" autocomplete="off" spellcheck="false"></textarea><p class="pw-err" hidden>${t('proBad')}</p><button class="btn primary wide" type="submit">${t('proActivate')}</button></form>
+  </div>`, { cls: 'tall', onMount: (el, close) => {
+    const f = el.querySelector('.pw-key');
+    el.querySelector('[data-a=key]').onclick = () => { f.hidden = false; f.querySelector('textarea').focus(); };
+    f.onsubmit = async e => { e.preventDefault(); const l = await activate(f.k.value); if (!l) { f.querySelector('.pw-err').hidden = false; return; } setWatermark(false); close(); toast(t('proOk'), 3500); go(S.view === 'onboard' ? 'home' : S.view); };
+  } });
+}
+
 async function load() {
   [S.kids, S.items, S.moments, S.letters] = await Promise.all(['kids', 'items', 'moments', 'letters'].map(s => db.all(s)));
   S.kids.sort((a, b) => a.created - b.created);
@@ -468,7 +506,7 @@ async function viewStudio(v, arg = {}) {
       if (l.type === 'decor') h += sw(l.color);
       h += common(l);
     } else if (tab === 'bg') {
-      const sceneTile = id => `<button class="scene ${doc.scene === id ? 'on' : ''}" data-scene="${id}"><img src="${thumbs['s' + id] ||= sceneThumb(id)}" alt=""><span>${sceneName(id)}</span></button>`;
+      const sceneTile = id => `<button class="scene ${doc.scene === id ? 'on' : ''} ${locked('s', id) ? 'locked' : ''}" data-scene="${id}">${lockI('s', id)}<img src="${thumbs['s' + id] ||= sceneThumb(id)}" alt=""><span>${sceneName(id)}</span></button>`;
       h += `<div class="lbl">${t('tBg')}</div><div class="scenes scroll-x">${SCENE_IDS.filter(id => !id.startsWith('p_')).map(sceneTile).join('')}</div>
         <div class="lbl">${t('patternsLbl')}</div><div class="scenes scroll-x">${SCENE_IDS.filter(id => id.startsWith('p_')).map(sceneTile).join('')}</div>`;
       h += `<div class="lbl">${t('color')}</div>${sw(doc.sceneColor || SCENES[doc.scene].color, 'data-scolor')}
@@ -489,15 +527,15 @@ async function viewStudio(v, arg = {}) {
         <div class="lbl">${t('captionsLbl')}</div><div class="chips wrap">${CAPTION_KEYS.map(c => `<button class="chip soft" data-quick="${esc(t(c))}">${esc(t(c))}</button>`).join('')}</div>
         <div class="chips wrap"><button class="chip soft" data-quick="${esc(k.name)}">👶 ${esc(k.name)}</button><button class="chip soft" data-quick="${esc(fmtDate(date))}">📅 ${esc(fmtDate(date))}</button><button class="chip soft" data-quick="${esc(ageText(k.birth, date))}">⏳ ${esc(ageText(k.birth, date))}</button><button class="chip soft" data-quick="💗 ${t('appName')} 💗">💗 ${t('appName')}</button></div>`;
     } else if (tab === 'decor') {
-      const grid = ids => `<div class="decor-grid">${ids.map(id => `<button class="dec" data-decor="${id}" aria-label="${id}"><img src="${thumbs['d' + id] ||= decorThumb(id)}" alt=""></button>`).join('')}</div>`;
+      const grid = ids => `<div class="decor-grid">${ids.map(id => `<button class="dec ${locked('d', id) ? 'locked' : ''}" data-decor="${id}" aria-label="${id}">${lockI('d', id)}<img src="${thumbs['d' + id] ||= decorThumb(id)}" alt=""></button>`).join('')}</div>`;
       h += `<button class="btn soft wide" data-act="blocks">🔤 ${t('blocksBtn', { name: k.name })}</button><div class="lbl">😜 ${t('secFun')}</div>${grid(FUN_IDS)}<div class="lbl">🐾 ${t('secAnimals')}</div>${grid(ANIMAL_IDS)}<div class="lbl">🎀 ${t('secDecor')}</div>${grid([...EXTRA_IDS, ...DECOR_IDS])}
         <div class="lbl">😊 ${t('secEmoji')}</div><div class="decor-grid">${EMOJI.map(e => `<button class="dec emo" data-emoji="${e}">${e}</button>`).join('')}</div>`;
     } else if (tab === 'worlds') {
       const ph1 = doc.layers.find(x => x.type === 'photo');
-      h += `${ph1 && !ph1.cut ? `<button class="btn primary wide cut-tip" data-cutfirst="${ph1.id}">✂️ ${t('cutTip')}</button>` : ''}<p class="hint">${t('worldsHint')}</p><div class="worlds scroll-x">${WORLD_IDS.map(id => `<button class="world ${doc.world === id ? 'on' : ''}" data-world="${id}"><img src="${thumbs['w' + id] ||= worldThumb(id)}" alt=""><span>${t('w_' + id)}</span></button>`).join('')}</div>
-        <button class="big-card pink tale-card" data-act="tale"><span class="bc-ic">📖</span><span><b>${t('taleBtn')}</b><small>${t('taleSub')}</small></span></button>`;
+      h += `${ph1 && !ph1.cut ? `<button class="btn primary wide cut-tip" data-cutfirst="${ph1.id}">✂️ ${t('cutTip')}</button>` : ''}<p class="hint">${t('worldsHint')}</p><div class="worlds scroll-x">${WORLD_IDS.map(id => `<button class="world ${doc.world === id ? 'on' : ''} ${locked('w', id) ? 'locked' : ''}" data-world="${id}">${lockI('w', id)}<img src="${thumbs['w' + id] ||= worldThumb(id)}" alt=""><span>${t('w_' + id)}</span></button>`).join('')}</div>
+        <button class="big-card pink tale-card" data-act="tale"><span class="bc-ic">📖</span><span><b>${isPro() ? '' : '🔒 '}${t('taleBtn')}</b><small>${t('taleSub')}</small></span></button>`;
     } else if (tab === 'fx') {
-      h += `<p class="hint">${t('fxHint')}</p><div class="worlds scroll-x">${EFFECT_IDS.map(id => `<button class="world fx ${(doc.effect || 'none') === id ? 'on' : ''}" data-fx="${id}"><img src="${fxThumb(id)}" alt=""><span>${t('fx_' + id)}</span></button>`).join('')}</div>`;
+      h += `<p class="hint">${t('fxHint')}</p><div class="worlds scroll-x">${EFFECT_IDS.map(id => `<button class="world fx ${(doc.effect || 'none') === id ? 'on' : ''} ${locked('f', id) ? 'locked' : ''}" data-fx="${id}">${lockI('f', id)}<img src="${fxThumb(id)}" alt=""><span>${t('fx_' + id)}</span></button>`).join('')}</div>`;
     }
     p.innerHTML = h;
   }
@@ -528,6 +566,9 @@ async function viewStudio(v, arg = {}) {
   P.addEventListener('click', async e => {
     const b = e.target.closest('button'); if (!b) return; const l = ed.layer(); const d = b.dataset;
     if ('desel' in d) return ed.select(null);
+    const gc = d.scene ? ['s', d.scene] : d.world ? ['w', d.world] : d.fx ? ['f', d.fx] : d.decor ? ['d', d.decor] : null;
+    if (gc && locked(...gc)) return paywall(true);
+    if (d.act === 'tale' && !isPro()) return paywall(true);
     if (d.scene) { ed.update(dd => { dd.scene = d.scene; dd.sceneColor = null; }); return panel(); }
     if (d.scolor) { ed.update(dd => { dd.sceneColor = d.scolor; }); return panel(); }
     if (d.prop) { ed.update(dd => { dd.prop = d.prop; }); return panel(); }
@@ -591,7 +632,7 @@ function mockOpts(src) {
 }
 function openMockups(src) {
   const o = src._o ||= mockOpts(src);
-  const tile = id => `<button class="mock" data-mk="${id}"><canvas width="216" height="270"></canvas><span>${t('mk_' + id)}</span></button>`;
+  const tile = id => `<button class="mock ${locked('m', id) ? 'locked' : ''}" data-mk="${id}">${lockI('m', id)}<canvas width="216" height="270"></canvas><span>${t('mk_' + id)}</span></button>`;
   const figs = MOCKUP_IDS.filter(id => id.startsWith('fig_')), places = MOCKUP_IDS.filter(id => !id.startsWith('fig_'));
   const close = sheet(`<h3>🖼️ ${t('whereTitle')}</h3><p class="hint">${t('whereHint')}</p>
     <h4 class="mock-h">🗿 ${t('figTitle')}</h4><p class="hint">✅ ${t('figHint')}</p>${src.cut ? '' : `<p class="hint warn-tip">✂️ ${t('statueTip')}</p>`}
@@ -601,7 +642,7 @@ function openMockups(src) {
       const tiles = $$('[data-mk]', el); let i = 0;
       const step = () => { if (i >= tiles.length) return; const b = tiles[i++]; try { b.querySelector('canvas').getContext('2d').drawImage(renderMockup(b.dataset.mk, 216, 270, o), 0, 0); } catch (e) { console.warn(e); } requestAnimationFrame(step); };
       requestAnimationFrame(step);
-      el.addEventListener('click', e => { const b = e.target.closest('[data-mk]'); if (b) showMockup(b.dataset.mk, src, o); });
+      el.addEventListener('click', e => { const b = e.target.closest('[data-mk]'); if (!b) return; if (locked('m', b.dataset.mk)) return paywall(true); showMockup(b.dataset.mk, src, o); });
     }
   });
 }
@@ -780,6 +821,7 @@ function sealedSheet(l) {
 // ---------- Ще ----------
 function viewMore(v) {
   v.innerHTML = `<header class="topbar"><h1>${t('more')}</h1></header>
+  <button class="card pro-card ${isPro() ? 'on' : ''}" data-pro><span class="pro-star">⭐</span><span><b>${isPro() ? t('proActive') : t('proRow')}</b><small>${isPro() ? t('proOwner', { name: esc(license().name || license().id) }) : t('proRowSub') + ' · ' + shopFor(getLang()).price}</small></span><span>›</span></button>
   <div class="card list">
     <div class="list-row"><span>🌐 ${t('lang')}</span>${langSelect('inline')}</div>
   </div>
@@ -797,6 +839,7 @@ function viewMore(v) {
   <div class="card center about">${logoSvg(84)}${brandHTML('sm')}<p>${t('aboutText')}</p><small>v1.0</small></div>`;
   $$('[data-kid]', v).forEach(b => b.onclick = async () => { if (b.dataset.kid !== S.kidId) { S.kidId = b.dataset.kid; await db.setting('kidId', S.kidId); } go('onboard', { edit: b.dataset.kid }); });
   $('[data-addkid]', v).onclick = () => go('onboard');
+  $('[data-pro]', v).onclick = () => paywall();
   $('[data-ai]', v).onclick = () => aiSettings();
   $('[data-bexp]', v).onclick = async () => download(await exportBackup(), `moya-lyubov-backup-${iso(new Date())}.json`);
   $('[data-bimp]', v).onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'application/json,.json'; i.onchange = async () => { try { await importBackup(i.files[0]); await load(); toast('✓ ' + t('backupDone')); go('home'); } catch (e) { toast(e.message, 4000); } }; i.click(); };
@@ -819,8 +862,11 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.inst
   setLang((await db.setting('lang')) || detectLang());
   document.title = t('appName');
   await load();
+  await loadLicense(); setWatermark(!isPro());
+  const hk = (location.hash.match(/key=([^&]+)/) || [])[1];
+  if (hk) { history.replaceState(null, '', location.pathname); const l = await activate(decodeURIComponent(hk)); setTimeout(() => toast(l ? t('proOk') : t('proBad'), 4000), 800); if (l) setWatermark(false); }
   try { await Promise.all(['700 20px Comfortaa', '400 20px "Marck Script"', '400 20px Lobster', '400 20px "Great Vibes"', '400 20px "Bad Script"', '400 20px Neucha', '700 20px "Amatic SC"'].map(f => document.fonts.load(f, 'Аa'))); } catch {}
   go(S.kids.length ? 'home' : 'onboard');
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
 })();
-window.__ml = { S, go, db };
+window.__ml = { S, go, db, paywall, isPro };

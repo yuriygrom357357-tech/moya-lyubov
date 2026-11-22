@@ -259,10 +259,22 @@ export function render(ctx, doc, { bg = true } = {}) {
   if (doc.effect && doc.effect !== 'none') applyEffect(ctx, doc.effect);
 }
 
+// Напис «Моя Любов» на фото в безкоштовній версії
+let WATERMARK = false;
+export function setWatermark(v) { WATERMARK = !!v; }
+function drawWatermark(ctx, doc) {
+  const fs = Math.round(doc.w * 0.05); ctx.save();
+  ctx.font = `${fs}px 'Great Vibes','Marck Script',cursive`; const txt = 'Моя Любов ♥';
+  const w = ctx.measureText(txt).width, pad = fs * 0.45, x = doc.w - w - pad * 2 - doc.w * 0.03, y = doc.h - fs * 1.6 - doc.h * 0.015;
+  ctx.globalAlpha = 0.55; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.roundRect(x, y, w + pad * 2, fs * 1.35, fs * 0.67); ctx.fill();
+  ctx.globalAlpha = 0.9; ctx.fillStyle = '#C65873'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x + pad, y + fs * 0.7);
+  ctx.restore();
+}
 export async function exportBlob(doc, { type = 'image/jpeg', q = 0.92, scale = 1 } = {}) {
   await ensureImages(doc); await document.fonts.ready;
   const c = document.createElement('canvas'); c.width = doc.w * scale; c.height = doc.h * scale;
   const ctx = c.getContext('2d'); ctx.scale(scale, scale); render(ctx, doc);
+  if (WATERMARK) drawWatermark(ctx, doc);
   return new Promise(r => c.toBlob(r, type, q));
 }
 export async function exportSticker(layer) {

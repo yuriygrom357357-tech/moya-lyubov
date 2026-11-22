@@ -1,6 +1,6 @@
 // Офлайн-режим: застосунок відкривається без інтернету
-const V = 'ml-v11';
-const CORE = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/db.js', 'js/i18n.js', 'js/scenes.js', 'js/editor.js', 'js/services.js', 'js/i18n2.js', 'js/stickers.js', 'js/effects.js', 'js/worlds.js', 'js/mockups.js', 'js/figures.js', 'js/i18n3.js', 'manifest.webmanifest',
+const V = 'ml-v12';
+const CORE = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/db.js', 'js/i18n.js', 'js/scenes.js', 'js/editor.js', 'js/services.js', 'js/i18n2.js', 'js/stickers.js', 'js/effects.js', 'js/worlds.js', 'js/mockups.js', 'js/figures.js', 'js/i18n3.js', 'js/i18n4.js', 'js/license.js', 'js/nacl.min.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'fonts/comfortaa-cyrillic-400-normal.woff2', 'fonts/comfortaa-cyrillic-700-normal.woff2', 'fonts/comfortaa-latin-400-normal.woff2', 'fonts/comfortaa-latin-700-normal.woff2',
   'fonts/marck-script-cyrillic-400-normal.woff2', 'fonts/marck-script-latin-400-normal.woff2', 'fonts/lobster-cyrillic-400-normal.woff2', 'fonts/lobster-latin-400-normal.woff2', 'fonts/neucha-cyrillic-400-normal.woff2', 'fonts/neucha-latin-400-normal.woff2', 'fonts/amatic-sc-cyrillic-700-normal.woff2', 'fonts/amatic-sc-latin-700-normal.woff2', 'fonts/great-vibes-cyrillic-400-normal.woff2', 'fonts/great-vibes-latin-400-normal.woff2', 'fonts/bad-script-cyrillic-400-normal.woff2', 'fonts/bad-script-latin-400-normal.woff2'];
