@@ -1,5 +1,5 @@
 // Офлайн-режим: застосунок відкривається без інтернету
-const V = 'ml-v6';
+const V = 'ml-v7';
 const CORE = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/db.js', 'js/i18n.js', 'js/scenes.js', 'js/editor.js', 'js/services.js', 'js/i18n2.js', 'js/stickers.js', 'js/effects.js', 'js/worlds.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'fonts/comfortaa-cyrillic-400-normal.woff2', 'fonts/comfortaa-cyrillic-700-normal.woff2', 'fonts/comfortaa-latin-400-normal.woff2', 'fonts/comfortaa-latin-700-normal.woff2',

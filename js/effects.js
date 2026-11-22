@@ -96,9 +96,9 @@ const FX = {
   },
   dream(ctx, W, H) {
     const b = blurCopy(snapshot(ctx.canvas), 14);
-    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.55; ctx.drawImage(b, 0, 0);
-    ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.5; ctx.fillStyle = '#FFD6C9'; ctx.fillRect(0, 0, W, H); ctx.restore();
-    vignette(ctx, W, H, 'rgba(255,235,240,A)', 0.7);
+    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.28; ctx.drawImage(b, 0, 0);
+    ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.35; ctx.fillStyle = '#FFD6C9'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    vignette(ctx, W, H, 'rgba(255,225,232,A)', 0.4);
   },
   sparkle(ctx, W, H) {
     const u = W / 1080, r = rand(19);

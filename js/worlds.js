@@ -4,7 +4,7 @@ import { makeDecorLayer, makeTextLayer, newDoc, fitWidth, layerSize } from './ed
 // a — наліпка: [назва, x, y, масштаб, поворот°]; координати у частках кадру
 export const WORLDS = {
   stars: { scene: 'space', prop: 'moon', effect: 'sparkle', font: 'festive', style: 'glow', color: '#FFFFFF', a: [['rocket', 0.8, 0.27, 1.1, 0], ['planet', 0.18, 0.22, 0.9, 0], ['stars', 0.85, 0.62, 0.8, 0], ['owl', 0.16, 0.63, 0.75, -6]] },
-  clouds: { scene: 'clouds', prop: 'cloud', effect: 'dream', font: 'festive', style: 'outline', color: '#E07F88', a: [['rainbow', 0.5, 0.25, 1.7, 0], ['bird', 0.18, 0.4, 0.7, -8], ['balloons', 0.84, 0.46, 0.9, 6], ['sparkle', 0.3, 0.15, 0.5, 0]] },
+  clouds: { scene: 'clouds', prop: 'cloud', effect: 'none', font: 'festive', style: 'outline', color: '#E07F88', a: [['rainbow', 0.5, 0.25, 1.7, 0], ['bird', 0.18, 0.4, 0.7, -8], ['balloons', 0.84, 0.46, 0.9, 6], ['sparkle', 0.3, 0.15, 0.5, 0]] },
   forest: { scene: 'forest', prop: 'blanket', effect: 'none', font: 'kids', style: 'ribbon', color: '#FFFFFF', a: [['fox', 0.17, 0.74, 0.85, 0], ['bunny', 0.84, 0.76, 0.8, 0], ['owl', 0.82, 0.33, 0.7, 6], ['mushroom', 0.1, 0.9, 0.6, 0], ['butterfly', 0.25, 0.36, 0.5, -15]] },
   sea: { scene: 'underwater', prop: 'none', effect: 'none', font: 'festive', style: 'outline', color: '#5B9FC4', a: [['whale', 0.73, 0.26, 1.2, 0], ['fish', 0.18, 0.4, 0.6, 0], ['fish', 0.86, 0.62, 0.5, 10], ['hearts', 0.2, 0.7, 0.5, 0]] },
   meadow: { scene: 'meadow', prop: 'blanket', effect: 'none', font: 'script', style: 'plate', color: '#6B4E4E', a: [['butterfly', 0.2, 0.32, 0.6, -12], ['bee', 0.82, 0.38, 0.55, 8], ['lamb', 0.16, 0.79, 0.75, 0], ['chick', 0.86, 0.82, 0.6, 0]] },
